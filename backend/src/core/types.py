@@ -1,3 +1,3 @@
 from typing import Literal
 
-ServiceStatus = Literal["outage", "degraded", "operational"]
+ProjectStatus = Literal["outage", "degraded", "operational"]

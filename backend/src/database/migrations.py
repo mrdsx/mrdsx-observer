@@ -2,6 +2,7 @@ import asyncio
 from types import CoroutineType
 
 from core.firebase.types import AsyncFirestore
+from database.documents import get_project_component_doc, get_project_doc
 
 
 async def migrate_database(db: AsyncFirestore) -> None:
@@ -13,24 +14,24 @@ async def migrate_database(db: AsyncFirestore) -> None:
 async def get_olympiad_coroutines(
     db: AsyncFirestore,
 ) -> list[CoroutineType]:
-    project_doc = db.document("projects", "olympiad-preparation")
-    coroutine1 = project_doc.set(  # pyright: ignore[reportUnknownMemberType]
+    project_doc = get_project_doc(db, "olympiad-preparation")
+    project_coro = project_doc.set(  # pyright: ignore[reportUnknownMemberType]
         {"name": "Olympiad Preparation"},
         merge=True,
     )
 
-    static_assets_doc = db.document(
-        "projects", "olympiad-preparation", "components", "static-assets"
+    static_assets_doc = get_project_component_doc(
+        db, "olympiad-preparation", "static-assets"
     )
-    coroutine2 = static_assets_doc.set(  # pyright: ignore[reportUnknownMemberType]
+    static_assets_coro = static_assets_doc.set(  # pyright: ignore[reportUnknownMemberType]
         {"name": "Static Assets"},
         merge=True,
     )
 
-    api_doc = db.document("projects", "olympiad-preparation", "components", "api")
-    coroutine3 = api_doc.set(  # pyright: ignore[reportUnknownMemberType]
+    api_doc = get_project_component_doc(db, "olympiad-preparation", "api")
+    api_coro = api_doc.set(  # pyright: ignore[reportUnknownMemberType]
         {"name": "API"},
         merge=True,
     )
 
-    return [coroutine1, coroutine2, coroutine3]
+    return [project_coro, static_assets_coro, api_coro]

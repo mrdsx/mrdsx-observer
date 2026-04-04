@@ -1,0 +1,21 @@
+from httpx import Response
+
+from core.constants import MIN_RESPONSE_SECONDS
+from core.types import ProjectStatus
+
+
+def is_successful_response(response: Response) -> bool:
+    return response.is_success or response.is_redirect
+
+
+def get_project_status(*responses: Response) -> ProjectStatus:
+    success_list = [is_successful_response(res) for res in responses]
+    elapsed_seconds_list = [res.elapsed.seconds for res in responses]
+
+    if True not in success_list:
+        return "outage"
+    elif False in success_list or any(
+        time >= MIN_RESPONSE_SECONDS for time in elapsed_seconds_list
+    ):
+        return "degraded"
+    return "operational"
