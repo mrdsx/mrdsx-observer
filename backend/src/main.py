@@ -7,6 +7,7 @@ from api.dependencies import get_firestore
 from core.constants import MIN_RESPONSE_SECONDS
 from lifespan import lifespan
 from schemas.logs import Status
+from utils.responses import is_successful_response
 
 app = FastAPI(lifespan=lifespan)
 crons = Crons(app)
@@ -29,10 +30,11 @@ async def fetch_projects_uptime():
         response = await client.get("https://olympiad-preparation.vercel.app")
         status: Status = "operational"
         if (
-            response.is_success or response.is_redirect
-        ) and response.elapsed.seconds >= MIN_RESPONSE_SECONDS:
+            is_successful_response(response)
+            and response.elapsed.seconds >= MIN_RESPONSE_SECONDS
+        ):
             status = "degraded"
-        elif not (response.is_success or response.is_redirect):
+        elif not is_successful_response(response):
             status = "outage"
 
         print(f"static assets status: {status}")
@@ -57,9 +59,9 @@ async def fetch_projects_uptime():
         status: Status = "operational"
 
         success_list = [
-            res1.is_success or res1.is_redirect,
-            res2.is_success or res2.is_redirect,
-            res3.is_success or res3.is_redirect,
+            is_successful_response(res1),
+            is_successful_response(res2),
+            is_successful_response(res3),
         ]
         elapsed_seconds_list = [
             res1.elapsed.seconds,
