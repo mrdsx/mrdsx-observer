@@ -5,7 +5,6 @@ from firebase_admin import firestore
 
 from api.dependencies import get_firestore
 from core.constants import MIN_RESPONSE_SECONDS
-from core.firebase.types import AsyncFirestore
 from lifespan import lifespan
 from schemas.logs import Status
 
@@ -40,9 +39,9 @@ async def fetch_projects_uptime():
         project_logs = db.collection(
             "projects", "olympiad-preparation", "components", "static-assets", "logs"
         )
-        await project_logs.add(  # pyright: ignore[reportUnknownMemberType]
+        await project_logs.add(
             {
-                "timestamp": firestore.SERVER_TIMESTAMP,  # type: ignore
+                "timestamp": firestore.SERVER_TIMESTAMP,  # pyright: ignore[reportAttributeAccessIssue]
                 "status": status,
             }
         )
@@ -78,9 +77,9 @@ async def fetch_projects_uptime():
         project_logs = db.collection(
             "projects", "olympiad-preparation", "components", "api", "logs"
         )
-        await project_logs.add(  # pyright: ignore[reportUnknownMemberType]
+        await project_logs.add(
             {
-                "timestamp": firestore.SERVER_TIMESTAMP,  # type: ignore
+                "timestamp": firestore.SERVER_TIMESTAMP,  # pyright: ignore[reportAttributeAccessIssue]
                 "status": status,
             }
         )
