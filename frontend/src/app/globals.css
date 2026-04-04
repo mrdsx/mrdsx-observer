@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+body {
+  @apply box-border border-gray-300;
+}
