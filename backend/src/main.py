@@ -5,8 +5,8 @@ from firebase_admin import firestore
 
 from api.dependencies import get_firestore
 from core.constants import MIN_RESPONSE_SECONDS
+from core.types import ServiceStatus
 from lifespan import lifespan
-from schemas.logs import Status
 from utils.responses import is_successful_response
 
 app = FastAPI(lifespan=lifespan)
@@ -28,7 +28,7 @@ async def fetch_projects_uptime():
     async with httpx.AsyncClient() as client:
         # static assets
         response = await client.get("https://olympiad-preparation.vercel.app")
-        status: Status = "operational"
+        status: ServiceStatus = "operational"
         if (
             is_successful_response(response)
             and response.elapsed.seconds >= MIN_RESPONSE_SECONDS
@@ -56,7 +56,7 @@ async def fetch_projects_uptime():
         res3 = await client.get(
             "https://olympiad-preparation.vercel.app/api/matches?gridSize=3x4&schoolGrade=1&isFinalOlympiadStage=false"
         )
-        status: Status = "operational"
+        status: ServiceStatus = "operational"
 
         success_list = [
             is_successful_response(res1),
