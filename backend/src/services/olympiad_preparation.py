@@ -5,7 +5,7 @@ from httpx import AsyncClient
 
 from core.firebase.types import AsyncFirestore
 from schemas.projects_logs import ProjectLog
-from services.requests import send_request
+from utils.request import send_request
 from utils.response import get_service_status
 
 

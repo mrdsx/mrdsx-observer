@@ -5,6 +5,13 @@ services:
       - "4000:4000"
       - "8080:8080"
 
+  redis:
+    image: redis:8.6.2-alpine
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
   frontend:
     build: frontend
     ports:

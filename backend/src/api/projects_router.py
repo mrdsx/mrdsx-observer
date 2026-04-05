@@ -1,99 +1,50 @@
-from collections import Counter
-from datetime import datetime, time, timedelta
-from typing import Annotated, Any
+import json
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from google.cloud.firestore_v1.base_query import And, FieldFilter
-from pydantic import TypeAdapter
+from pydantic import ValidationError
+from redis.asyncio import Redis
 
-from api.dependencies import get_firestore
+from api.dependencies import get_firestore, get_redis
+from core.constants import CACHE_TTL_SECONDS
 from core.firebase.types import AsyncFirestore
-from core.types import ServiceStatus
-from schemas.projects_logs import ProjectLogInDB, ProjectsReportsOut
-from utils.projects_logs import worst_status
-
+from core.settings import get_settings
+from schemas.projects_logs import ProjectsReportsOut
+from services.projects_logs import (
+    get_projects_logs,
+    normalize_projects_reports,
+    projects_logs_range,
+    projects_reports_dict,
+)
 
 router = APIRouter(prefix="/projects")
+
+settings = get_settings()
 
 
 @router.get("/")
 async def get_projects_reports(
     db: Annotated[AsyncFirestore, Depends(get_firestore)],
+    redis: Annotated[Redis, Depends(get_redis)],
 ) -> ProjectsReportsOut:
-    now = datetime.now()
-    start_date = (now - timedelta(days=29)).replace(
-        hour=0, minute=0, second=0, microsecond=0
+    try:
+        cached_reports = await redis.get("backend:projects_reports")
+        if cached_reports is not None:
+            return ProjectsReportsOut(projects=json.loads(cached_reports))
+    except ValidationError, json.JSONDecodeError:
+        pass
+
+    start_date, end_date = projects_logs_range()
+    db_logs = await get_projects_logs(db, start_date, end_date)
+    projects_details = projects_reports_dict(db_logs)
+    projects_data = normalize_projects_reports(projects_details)
+
+    await redis.set(
+        "backend:projects_reports",
+        json.dumps(projects_data),
+        ex=CACHE_TTL_SECONDS,
     )
-    end_date = datetime.combine(now.date(), time.max)
-
-    projects_logs = db.collection("projects_logs")
-    query = projects_logs.where(
-        filter=And(
-            [
-                FieldFilter("timestamp", ">=", start_date),
-                FieldFilter("timestamp", "<=", end_date),
-            ]
-        )
-    ).order_by("timestamp", "DESCENDING")
-
-    raw_logs = [doc.to_dict() async for doc in query.stream()]
-    ta = TypeAdapter(list[ProjectLogInDB])
-    db_logs = ta.validate_python(raw_logs)
-    projects_details: dict[str, dict[str, Any]] = {}
-
-    for log in db_logs:
-        date_str = log.timestamp.date().isoformat()
-        worst_log_status = worst_status(*log.components.values())
-        existing_details = projects_details.get(log.project_id)
-        if existing_details is None:
-            projects_details[log.project_id] = {
-                "name": log.project_name,
-                "status": worst_log_status,
-                "daily_reports": {
-                    date_str: [worst_log_status],
-                },
-            }
-            continue
-
-        existing_reports: list[ServiceStatus] | None = existing_details[
-            "daily_reports"
-        ].get(date_str)
-        if existing_reports is None:
-            existing_details["daily_reports"][date_str] = [worst_log_status]
-        else:
-            existing_details["daily_reports"][date_str].append(worst_log_status)
-
-    projects_data = []
-
-    for project_id, rest_details in projects_details.items():
-        final_reports = []
-        reports: dict[str, list[ServiceStatus]] = rest_details["daily_reports"]
-        total_outages = 0
-        total_statuses = 0
-
-        for date_str, statuses in reports.items():
-            outages_count = Counter(statuses).get("outage", 0)
-            statuses_count = len(statuses)
-            good_statuses_count = statuses_count - outages_count
-            uptime_percent = (good_statuses_count / statuses_count) * 100
-
-            final_reports.append(
-                {
-                    "worst_status": worst_status(*statuses),
-                    "uptime": round(uptime_percent, 2),
-                    "date": date_str,
-                }
-            )
-            total_outages += outages_count
-            total_statuses += len(statuses)
-
-        total_good_statuses = total_statuses - total_outages
-        project_uptime_percent = (total_good_statuses / total_statuses) * 100
-        rest_details["uptime"] = round(project_uptime_percent, 2)
-        rest_details["daily_reports"] = final_reports
-        projects_data.append({"id": project_id, **rest_details})
-
-    return ProjectsReportsOut(projects=projects_data)
+    return ProjectsReportsOut(projects=projects_data)  # pyright: ignore[reportArgumentType]
 
 
 @router.get("/{project_id}")

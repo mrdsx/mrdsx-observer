@@ -1,5 +1,5 @@
-from datetime import timedelta
 import random
+from datetime import timedelta
 
 from httpx import AsyncClient, Response
 
@@ -14,13 +14,13 @@ async def send_request(client: AsyncClient, url: str) -> Response:
 
     status_code = 200
     # flaky behavior simulation
-    if random.randint(1, 100) >= 98:
+    if random.randint(1, 100) >= 99:
         status_code = 500
 
     # latency simulation
     response = Response(status_code=status_code)
     response.elapsed = timedelta(seconds=0)
-    if random.randint(1, 10) >= 8:
+    if random.randint(1, 10) >= 9:
         response.elapsed = timedelta(seconds=20)
 
     return response

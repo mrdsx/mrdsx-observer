@@ -1,8 +1,8 @@
 from typing import Any
 
+from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
-from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 
 from core.types import ServiceStatus
 
