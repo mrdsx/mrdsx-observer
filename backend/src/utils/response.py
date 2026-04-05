@@ -12,10 +12,8 @@ def get_service_status(*responses: Response) -> ServiceStatus:
     success_list = [is_successful_response(res) for res in responses]
     elapsed_seconds_list = [res.elapsed.seconds for res in responses]
 
-    if True not in success_list:
+    if False in success_list:
         return "outage"
-    elif False in success_list or any(
-        time >= MIN_RESPONSE_SECONDS for time in elapsed_seconds_list
-    ):
+    elif any(time >= MIN_RESPONSE_SECONDS for time in elapsed_seconds_list):
         return "degraded"
     return "operational"

@@ -22,7 +22,7 @@ app.include_router(api_router)
 app.include_router(get_cron_router())
 
 
-@crons.cron("*/1 * * * *", name="capture_projects_uptime")
+@crons.cron("*/5 * * * *", name="capture_projects_uptime")
 async def capture_projects_uptime():
     db = get_firestore()
 

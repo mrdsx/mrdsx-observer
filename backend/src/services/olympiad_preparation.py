@@ -4,7 +4,7 @@ from firebase_admin import firestore
 from httpx import AsyncClient
 
 from core.firebase.types import AsyncFirestore
-from schemas.projects_logs import ProjectComponent, ProjectLog
+from schemas.projects_logs import ProjectLog
 from utils.response import get_service_status
 
 
@@ -33,9 +33,9 @@ async def capture_olympiad_preparation(client: AsyncClient, db: AsyncFirestore) 
             project_id="olympiad-preparation",
             project_name="Olympiad Preparation",
             timestamp=firestore.SERVER_TIMESTAMP,  # pyright: ignore[reportAttributeAccessIssue]
-            components=[
-                ProjectComponent(name="API", status=api_status),
-                ProjectComponent(name="Static assets", status=static_assets_status),
-            ],
-        ).model_dump(by_alias=True)
+            components={
+                "API": api_status,
+                "Static assets": static_assets_status,
+            },
+        ).model_dump()
     )
