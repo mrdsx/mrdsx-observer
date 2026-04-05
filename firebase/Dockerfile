@@ -1,6 +1,6 @@
-FROM oven/bun:1.3.11-slim
+FROM oven/bun:1.3.11-alpine
 
-RUN apt-get update && apt-get install -y openjdk-21-jre
+RUN apk add openjdk21-jre-headless
 
 RUN bun i -g firebase-tools
 
