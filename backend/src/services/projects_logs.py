@@ -1,11 +1,10 @@
 from collections import Counter
-from datetime import datetime, time, timedelta
+from datetime import datetime
 from typing import Any
 
 from google.cloud.firestore_v1.base_query import And, FieldFilter
 from pydantic import TypeAdapter
 
-from core.constants import LOGS_WINDOW_DAYS
 from core.firebase.types import AsyncFirestore
 from core.types import ServiceStatus
 from schemas.projects_logs import ProjectLogInDB
@@ -34,18 +33,9 @@ async def get_projects_logs(
     return db_logs
 
 
-def projects_logs_range() -> tuple[datetime, datetime]:
-    now = datetime.now()
-    # with current day we would have 31 days window, so we substract 1 day
-    start_date = (now - timedelta(days=LOGS_WINDOW_DAYS - 1)).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
-    end_date = datetime.combine(now.date(), time.max)
-
-    return (start_date, end_date)
-
-
-def projects_reports_dict(db_logs: list[ProjectLogInDB]) -> dict[str, dict[str, Any]]:
+def normalize_projects_reports(
+    db_logs: list[ProjectLogInDB],
+) -> dict[str, dict[str, Any]]:
     projects_details: dict[str, dict[str, Any]] = {}
 
     for log in db_logs:
@@ -73,13 +63,13 @@ def projects_reports_dict(db_logs: list[ProjectLogInDB]) -> dict[str, dict[str, 
     return projects_details
 
 
-def normalize_projects_reports(
+def map_projects_reports(
     projects_details: dict[str, dict[str, Any]],
-):
+) -> list[dict[str, Any]]:
     projects_data: list[dict[str, Any]] = []
 
     for project_id, rest_details in projects_details.items():
-        final_reports = []
+        final_reports: list[dict[str, Any]] = []
         reports: dict[str, list[ServiceStatus]] = rest_details["daily_reports"]
         total_outages = 0
         total_statuses = 0

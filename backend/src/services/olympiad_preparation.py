@@ -5,8 +5,8 @@ from httpx import AsyncClient
 
 from core.firebase.types import AsyncFirestore
 from schemas.projects_logs import ProjectLog
-from utils.request import send_request
-from utils.response import get_service_status
+from utils.requests import send_request
+from utils.responses import get_service_status
 
 
 async def capture_olympiad_preparation(client: AsyncClient, db: AsyncFirestore) -> None:
