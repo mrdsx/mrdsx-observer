@@ -47,42 +47,44 @@ export default function Home() {
 
   return (
     <ul className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-      {projectsData.projects.map((project) => (
-        <Card
-          className="max-w-125 flex-wrap"
-          title={
-            <div className="inline-flex items-center gap-4">
-              <span>{project.name}</span>
+      {projectsData.projects
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((project) => (
+          <Card
+            className="max-w-125 flex-wrap"
+            title={
+              <div className="inline-flex items-center gap-4">
+                <span>{project.name}</span>
+              </div>
+            }
+            size="small"
+            key={project.id}
+          >
+            <div className="flex flex-wrap gap-2 justify-between mb-4">
+              <StatusBadge status={project.status} />
+              <span className="text-[16px]">Uptime: {project.uptime}%</span>
             </div>
-          }
-          size="small"
-          key={project.id}
-        >
-          <div className="flex flex-wrap gap-2 justify-between mb-4">
-            <StatusBadge status={project.status} />
-            <span className="text-[16px]">Uptime: {project.uptime}%</span>
-          </div>
-          <div className="flex flex-wrap gap-0.5">
-            {Array(30 - project.dailyReports.length)
-              .fill(null)
-              .map((_, index) => {
-                // we're ok with index as key because list is static
-                // biome-ignore lint/suspicious/noArrayIndexKey: .
-                return <ReportItem key={index} />;
+            <div className="flex flex-wrap gap-0.5">
+              {Array(30 - project.dailyReports.length)
+                .fill(null)
+                .map((_, index) => {
+                  // we're ok with index as key because list is static
+                  // biome-ignore lint/suspicious/noArrayIndexKey: .
+                  return <ReportItem key={index} />;
+                })}
+              {project.dailyReports.map((report) => {
+                return (
+                  <ReportItem
+                    date={report.date}
+                    worstStatus={report.worstStatus}
+                    uptime={report.uptime}
+                    key={report.date}
+                  />
+                );
               })}
-            {project.dailyReports.map((report) => {
-              return (
-                <ReportItem
-                  date={report.date}
-                  worstStatus={report.worstStatus}
-                  uptime={report.uptime}
-                  key={report.date}
-                />
-              );
-            })}
-          </div>
-        </Card>
-      ))}
+            </div>
+          </Card>
+        ))}
     </ul>
   );
 }
