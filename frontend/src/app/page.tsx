@@ -3,7 +3,7 @@
 import { ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "antd";
-import { ReportNode } from "@/components/ReportNode";
+import { ReportItem } from "@/components/ReportItem";
 import { StatusBadge } from "@/components/StatusAlert";
 import { projectsSchema } from "@/lib/schemas";
 
@@ -18,12 +18,9 @@ export default function Home() {
     queryFn: async () => {
       const response = await fetch("http://localhost:8000/api/projects");
       const data = await response.json();
-      const parse = projectsSchema.safeParse(data);
-      if (!parse.success) {
-        throw new Error(parse.error.message);
-      }
+      const parsedData = projectsSchema.parse(data);
 
-      return parse.data;
+      return parsedData;
     },
     retry: false,
   });
@@ -71,11 +68,16 @@ export default function Home() {
               .map((_, index) => {
                 // we're ok with index as key because list is static
                 // biome-ignore lint/suspicious/noArrayIndexKey: .
-                return <ReportNode status="unknown" key={index} />;
+                return <ReportItem key={index} />;
               })}
             {project.dailyReports.map((report) => {
               return (
-                <ReportNode status={report.worstStatus} key={report.date} />
+                <ReportItem
+                  date={report.date}
+                  worstStatus={report.worstStatus}
+                  uptime={report.uptime}
+                  key={report.date}
+                />
               );
             })}
           </div>
