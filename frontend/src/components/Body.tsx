@@ -7,7 +7,7 @@ export function Body({ children }: React.PropsWithChildren) {
 
   return (
     <body
-      className="min-h-full flex flex-col"
+      className="min-h-screen flex flex-col items-center"
       style={{ background: token.colorBgContainer, color: token.colorText }}
     >
       {children}

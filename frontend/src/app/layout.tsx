@@ -10,14 +10,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <AppProvider>
         <Body>
-          <header className="py-4 px-8 border-b flex  items-center justify-between">
+          <header className="py-4 px-8 border-gray-200 border-b flex items-center justify-between w-full">
             <h1 className="text-xl">mrdsx observer</h1>
             <ToggleThemeButton />
           </header>
-          <main className="px-16 py-8 flex flex-col">{children}</main>
+          <main className="max-w-300 px-4 w-full py-8 flex flex-col">
+            {children}
+          </main>
         </Body>
       </AppProvider>
     </html>
