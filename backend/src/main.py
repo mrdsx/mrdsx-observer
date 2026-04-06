@@ -1,3 +1,5 @@
+import asyncio
+
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,7 +10,8 @@ from api.dependencies import get_firestore
 from core.constants import LOGGING_INTERVAL_MINUTES
 from core.settings import get_settings
 from lifespan import lifespan
-from services.olympiad_preparation import (
+from services.projects import (
+    capture_classic_word_game,
     capture_olympiad_preparation,
 )
 
@@ -38,4 +41,7 @@ async def log_projects_statuses():
     db = get_firestore()
 
     async with httpx.AsyncClient() as client:
-        await capture_olympiad_preparation(client, db)
+        coro1 = capture_olympiad_preparation(client, db)
+        coro2 = capture_classic_word_game(client, db)
+
+        await asyncio.gather(coro1, coro2)

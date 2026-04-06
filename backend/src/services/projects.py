@@ -9,6 +9,29 @@ from utils.requests import send_request
 from utils.responses import get_service_status
 
 
+async def capture_classic_word_game(client: AsyncClient, db: AsyncFirestore) -> None:
+    api_coro = send_request(client, "https://classic-word-game.onrender.com")
+    site_coro = send_request(client, "https://classic-word-game.vercel.app")
+
+    api_response, site_response = await asyncio.gather(api_coro, site_coro)
+
+    api_status = get_service_status(api_response)
+    site_status = get_service_status(site_response)
+
+    projects_logs = db.collection("projects_logs")
+    await projects_logs.add(
+        ProjectLog(
+            project_id="classic-word-game",
+            project_name="Classic word game",
+            timestamp=firestore.SERVER_TIMESTAMP,  # pyright: ignore[reportAttributeAccessIssue]
+            components={
+                "API": api_status,
+                "Site": site_status,
+            },
+        ).model_dump()
+    )
+
+
 async def capture_olympiad_preparation(client: AsyncClient, db: AsyncFirestore) -> None:
     api_coro1 = send_request(
         client,
