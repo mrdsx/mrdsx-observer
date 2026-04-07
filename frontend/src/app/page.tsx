@@ -24,11 +24,12 @@ export default function Home() {
       return parsedData;
     },
     retry: false,
+    refetchOnWindowFocus: false,
   });
 
   if (isPending) {
     return (
-      <div className="flex justify-center py-30 text-3xl">
+      <div className="flex justify-center py-10 text-3xl">
         <LoadingOutlined />
       </div>
     );
@@ -36,7 +37,7 @@ export default function Home() {
 
   if (isError) {
     return (
-      <div className="rounded-lg flex flex-col gap-4 items-center py-30 text-red-600">
+      <div className="rounded-lg flex flex-col gap-4 items-center py-20 text-red-600 dark:text-red-400">
         <div className="inline-flex gap-2">
           <ExclamationCircleOutlined className="text-xl" />
           <p className="text">Something went wrong while fetching data</p>
