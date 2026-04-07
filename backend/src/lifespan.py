@@ -11,5 +11,11 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
+    print("Starting app with following settings:")
+    print(f"Environment  - {settings.app_env}")
+    print(f"Frontend URL - {settings.frontend_url}")
+    print(f"Redis host   - {settings.redis_host}")
+    print(f"Redis port   - {settings.redis_port}")
+
     initialize_firebase()
     yield

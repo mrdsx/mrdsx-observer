@@ -8,7 +8,6 @@ from redis.asyncio import Redis
 from src.api.dependencies import get_firestore, get_redis
 from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
 from src.core.firebase.types import AsyncFirestore
-from src.core.settings import get_settings
 from src.schemas.projects_logs import ProjectsReportsOut
 from src.services.projects_logs import (
     get_projects_logs,
@@ -18,8 +17,6 @@ from src.services.projects_logs import (
 from src.utils.projects_logs import projects_logs_range
 
 router = APIRouter(prefix="/projects")
-
-settings = get_settings()
 
 
 @router.get("/")
