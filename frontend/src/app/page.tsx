@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "antd";
 import { ReportItem } from "@/components/ReportItem";
 import { StatusBadge } from "@/components/StatusAlert";
+import { apiFetch } from "@/lib/api";
 import { projectsSchema } from "@/lib/schemas";
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
   } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/projects");
+      const response = await apiFetch("/api/projects");
       const data = await response.json();
       const parsedData = projectsSchema.parse(data);
 
