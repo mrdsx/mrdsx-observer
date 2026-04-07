@@ -10,8 +10,13 @@ from src.utils.responses import get_service_status
 
 
 async def capture_classic_word_game(client: AsyncClient, db: AsyncFirestore) -> None:
-    site_coro = await send_request(client, "https://classic-word-game.vercel.app")
-    site_status = get_service_status(site_coro)
+    api_coro = send_request(client, "https://classic-word-game.onrender.com")
+    site_coro = send_request(client, "https://classic-word-game.vercel.app")
+
+    api_response, site_response = await asyncio.gather(api_coro, site_coro)
+
+    api_status = get_service_status(api_response)
+    site_status = get_service_status(site_response)
 
     projects_logs = db.collection("projects_logs")
     await projects_logs.add(
@@ -20,6 +25,7 @@ async def capture_classic_word_game(client: AsyncClient, db: AsyncFirestore) -> 
             project_name="Classic word game",
             timestamp=firestore.SERVER_TIMESTAMP,  # pyright: ignore[reportAttributeAccessIssue]
             components={
+                "API": api_status,
                 "Site": site_status,
             },
         ).model_dump()
