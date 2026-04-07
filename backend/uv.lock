@@ -131,7 +131,6 @@ dependencies = [
     { name = "fastapi-crons" },
     { name = "firebase-admin" },
     { name = "pydantic-settings" },
-    { name = "python-dotenv" },
     { name = "redis" },
     { name = "uvicorn" },
 ]
@@ -142,7 +141,6 @@ requires-dist = [
     { name = "fastapi-crons", specifier = ">=2.2.0" },
     { name = "firebase-admin", specifier = ">=7.3.0" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "redis", specifier = ">=4.6.0" },
     { name = "uvicorn", specifier = ">=0.43.0" },
 ]

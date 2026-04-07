@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from httpx import AsyncClient, Response
 
-from core.settings import get_settings
+from src.core.settings import get_settings
 
 settings = get_settings()
 

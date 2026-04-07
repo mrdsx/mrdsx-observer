@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 
-from core.constants import LOGS_WINDOW_DAYS
-from core.types import ServiceStatus
+from src.core.constants import LOGS_WINDOW_DAYS
+from src.core.types import ServiceStatus
 
 
 def projects_logs_range(days: int = LOGS_WINDOW_DAYS) -> tuple[datetime, datetime]:

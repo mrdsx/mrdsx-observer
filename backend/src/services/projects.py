@@ -3,10 +3,10 @@ import asyncio
 from firebase_admin import firestore
 from httpx import AsyncClient
 
-from core.firebase.types import AsyncFirestore
-from schemas.projects_logs import ProjectLog
-from utils.requests import send_request
-from utils.responses import get_service_status
+from src.core.firebase.types import AsyncFirestore
+from src.schemas.projects_logs import ProjectLog
+from src.utils.requests import send_request
+from src.utils.responses import get_service_status
 
 
 async def capture_classic_word_game(client: AsyncClient, db: AsyncFirestore) -> None:

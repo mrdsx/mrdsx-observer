@@ -5,17 +5,17 @@ from fastapi import APIRouter, Depends
 from pydantic import ValidationError
 from redis.asyncio import Redis
 
-from api.dependencies import get_firestore, get_redis
-from core.constants import CACHE_TTL_SECONDS, RedisKeys
-from core.firebase.types import AsyncFirestore
-from core.settings import get_settings
-from schemas.projects_logs import ProjectsReportsOut
-from services.projects_logs import (
+from src.api.dependencies import get_firestore, get_redis
+from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
+from src.core.firebase.types import AsyncFirestore
+from src.core.settings import get_settings
+from src.schemas.projects_logs import ProjectsReportsOut
+from src.services.projects_logs import (
     get_projects_logs,
     map_projects_reports,
     normalize_projects_reports,
 )
-from utils.projects_logs import projects_logs_range
+from src.utils.projects_logs import projects_logs_range
 
 router = APIRouter(prefix="/projects")
 

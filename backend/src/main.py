@@ -1,16 +1,17 @@
 import asyncio
+from typing import Any
 
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_crons import Crons, get_cron_router
 
-from api import api_router
-from api.dependencies import get_firestore
-from core.constants import LOGGING_INTERVAL_MINUTES
-from core.settings import get_settings
-from lifespan import lifespan
-from services.projects import (
+from src.api import api_router
+from src.api.dependencies import get_firestore
+from src.core.constants import LOGGING_INTERVAL_MINUTES
+from src.core.settings import get_settings
+from src.lifespan import lifespan
+from src.services.projects import (
     capture_classic_word_game,
     capture_olympiad_preparation,
 )
@@ -27,7 +28,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/", response_model=dict[str, Any])
 async def root():
     return {"status": "ok"}
 

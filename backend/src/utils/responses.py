@@ -1,7 +1,7 @@
 from httpx import Response
 
-from core.constants import MIN_RESPONSE_SECONDS
-from core.types import ServiceStatus
+from src.core.constants import MIN_RESPONSE_SECONDS
+from src.core.types import ServiceStatus
 
 
 def is_successful_response(response: Response) -> bool:

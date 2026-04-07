@@ -5,10 +5,10 @@ from typing import Any
 from google.cloud.firestore_v1.base_query import And, FieldFilter
 from pydantic import TypeAdapter
 
-from core.firebase.types import AsyncFirestore
-from core.types import ServiceStatus
-from schemas.projects_logs import ProjectLogInDB
-from utils.projects_logs import worst_status
+from src.core.firebase.types import AsyncFirestore
+from src.core.types import ServiceStatus
+from src.schemas.projects_logs import ProjectLogInDB
+from src.utils.projects_logs import worst_status
 
 
 async def get_projects_logs(

@@ -1,13 +1,11 @@
-import os
+from src.core.settings import get_settings
 
-from dotenv import load_dotenv
+settings = get_settings()
 
-load_dotenv()
-
-service_account = {  # pyright: ignore[reportUnknownVariableType]
+service_account: dict[str, str] = {
     "type": "service_account",
     "project_id": "mrdsx-observer",
-    "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n"),
+    "private_key": settings.firebase_private_key.replace("\\n", "\n"),
     "client_email": "firebase-adminsdk-fbsvc@mrdsx-observer.iam.gserviceaccount.com",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",

@@ -3,8 +3,8 @@ from typing import Any
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.types import ServiceStatus
-from schemas.api import api_model_config
+from src.core.types import ServiceStatus
+from src.schemas.api import api_model_config
 
 
 class ProjectLog(BaseModel):
