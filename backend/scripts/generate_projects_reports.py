@@ -7,9 +7,13 @@ from typing import Any
 from redis.asyncio import Redis
 
 from src.api.dependencies import get_firestore, get_redis
+from src.core.constants import RedisKeys
 from src.core.firebase import AsyncFirestore, initialize_firebase
 from src.core.types import ServiceStatus
 from src.schemas.projects_logs import ProjectLog
+
+LOGS_MAX_OFFSET_DAYS = 30
+LOGS_MIN_OFFSET_DAYS = 0
 
 initialize_firebase()
 
@@ -33,8 +37,7 @@ async def generate_reports() -> None:
 
     projects_reports_coroutines: list[CoroutineType[Any, Any, tuple[Any, Any]]] = []
 
-    # TODO: extract hardcoded values
-    for days_offset in range(30, 0, -1):
+    for days_offset in range(LOGS_MAX_OFFSET_DAYS, LOGS_MIN_OFFSET_DAYS, -1):
         new_log_timestamp = datetime.now() - timedelta(days=days_offset - 1)
         api_status = get_random_status()
         site_status = get_random_status()
@@ -56,7 +59,6 @@ async def generate_reports() -> None:
 
         api_status = get_random_status()
         site_status = get_random_status()
-        static_assets_status = get_random_status()
 
         add_report_coroutine = projects_logs.add(
             ProjectLog(
@@ -66,7 +68,6 @@ async def generate_reports() -> None:
                 components={
                     "API": api_status,
                     "Site": site_status,
-                    "Static assets": static_assets_status,
                 },
             ).model_dump()
         )
@@ -75,8 +76,8 @@ async def generate_reports() -> None:
     await asyncio.gather(*projects_reports_coroutines)
     print(f"Created projects logs: {len(projects_reports_coroutines)}")
 
-    await redis.delete("projects_reports")
-    print("Invalidated redis key: projects_reports")
+    await redis.delete(RedisKeys.PROJECTS_REPORTS)
+    print(f"Invalidated redis key: {RedisKeys.PROJECTS_REPORTS}")
 
 
 asyncio.run(generate_reports())

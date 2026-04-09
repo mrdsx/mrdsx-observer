@@ -8,7 +8,7 @@ from pydantic import TypeAdapter
 from src.core.firebase.types import AsyncFirestore
 from src.core.types import ServiceStatus
 from src.schemas.projects_logs import ProjectLogInDB
-from src.utils.projects_logs import worst_status
+from src.utils.projects_reports import projects_logs_range, worst_status
 
 
 async def get_projects_logs(
@@ -31,6 +31,15 @@ async def get_projects_logs(
     db_logs = ta.validate_python(raw_logs)
 
     return db_logs
+
+
+async def retrieve_projects_reports(db: AsyncFirestore) -> list[dict[str, Any]]:
+    start_date, end_date = projects_logs_range()
+    db_logs = await get_projects_logs(db, start_date, end_date)
+    projects_reports = normalize_projects_reports(db_logs)
+    mapped_reports = map_projects_reports(projects_reports)
+
+    return mapped_reports
 
 
 def normalize_projects_reports(

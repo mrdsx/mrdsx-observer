@@ -9,12 +9,9 @@ from src.api.dependencies import get_firestore, get_redis
 from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
 from src.core.firebase.types import AsyncFirestore
 from src.schemas.projects_logs import ProjectsReportsOut
-from src.services.projects_logs import (
-    get_projects_logs,
-    map_projects_reports,
-    normalize_projects_reports,
+from src.services.projects_reports import (
+    retrieve_projects_reports,
 )
-from src.utils.projects_logs import projects_logs_range
 
 router = APIRouter(prefix="/projects")
 
@@ -31,17 +28,14 @@ async def get_projects_reports(
     except ValidationError, json.JSONDecodeError:
         pass
 
-    start_date, end_date = projects_logs_range()
-    db_logs = await get_projects_logs(db, start_date, end_date)
-    projects_details = normalize_projects_reports(db_logs)
-    projects_data = map_projects_reports(projects_details)
+    projects_reports = await retrieve_projects_reports(db)
 
     await redis.set(
         RedisKeys.PROJECTS_REPORTS,
-        json.dumps(projects_data),
+        json.dumps(projects_reports),
         ex=CACHE_TTL_SECONDS,
     )
-    return ProjectsReportsOut(projects=projects_data)  # pyright: ignore[reportArgumentType]
+    return ProjectsReportsOut(projects=projects_reports)  # pyright: ignore[reportArgumentType]
 
 
 @router.get("/{project_id}")
