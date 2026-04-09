@@ -24,7 +24,7 @@ export function ProjectReportItem({
             Worst status: <span>{worstStatus ?? "—"}</span>
           </p>
           <p className="flex justify-between gap-4">
-            Uptime: <span>{uptime ? `${uptime}%` : "—"}</span>
+            Uptime: <span>{uptime !== undefined ? `${uptime}%` : "—"}</span>
           </p>
         </div>
       }
