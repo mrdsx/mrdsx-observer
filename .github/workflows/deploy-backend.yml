@@ -1,4 +1,4 @@
-name: Deploy to FastAPI Cloud
+name: Deploy backend to FastAPI Cloud
 
 on:
   push:
