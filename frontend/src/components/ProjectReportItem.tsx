@@ -1,8 +1,6 @@
 import { Popover } from "antd";
-import { cn } from "@/lib/utils";
+import { cn, mapDate } from "@/lib/utils";
 import { useThemeStore } from "@/stores/themeStore";
-
-const ITEM_CLASS_NAME = "w-2 h-6 rounded";
 
 type ReportItemProps = {
   date?: string;
@@ -10,12 +8,16 @@ type ReportItemProps = {
   uptime?: number;
 };
 
-export function ReportItem({ date, worstStatus, uptime }: ReportItemProps) {
+export function ProjectReportItem({
+  date,
+  worstStatus,
+  uptime,
+}: ReportItemProps) {
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
 
   return (
     <Popover
-      title={date}
+      title={date !== undefined && mapDate(date)}
       content={
         <div>
           <p className="flex justify-between gap-2">
@@ -29,7 +31,7 @@ export function ReportItem({ date, worstStatus, uptime }: ReportItemProps) {
     >
       <div
         className={cn(
-          ITEM_CLASS_NAME,
+          "w-2 h-6 rounded",
           worstStatus === undefined && "bg-gray-300",
           worstStatus === undefined && isDarkMode && "bg-gray-500",
           worstStatus === "outage"

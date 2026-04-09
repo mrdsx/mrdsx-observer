@@ -1,23 +1,23 @@
 import { z } from "zod";
 
-const projectsSchema = z.object({
-  projects: z.array(
+const projectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.enum(["operational", "degraded", "outage"]),
+  uptime: z.number().min(0).max(100),
+  dailyReports: z.array(
     z.object({
-      id: z.string(),
-      name: z.string(),
-      status: z.enum(["operational", "degraded", "outage"]),
+      worstStatus: z.enum(["operational", "degraded", "outage"]),
       uptime: z.number().min(0).max(100),
-      dailyReports: z.array(
-        z.object({
-          worstStatus: z.enum(["operational", "degraded", "outage"]),
-          uptime: z.number().min(0).max(100),
-          date: z.iso.date(),
-        }),
-      ),
+      date: z.iso.date(),
     }),
   ),
 });
 
-type Project = z.infer<typeof projectsSchema>;
+const projectsReportsSchema = z.object({
+  projects: z.array(projectSchema),
+});
 
-export { type Project, projectsSchema };
+type Project = z.infer<typeof projectSchema>;
+
+export { type Project, projectsReportsSchema };

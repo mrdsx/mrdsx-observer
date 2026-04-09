@@ -3,10 +3,10 @@
 import { ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "antd";
-import { ReportItem } from "@/components/ReportItem";
+import { ProjectReportsView } from "@/components/ProjectReportsView";
 import { StatusBadge } from "@/components/StatusAlert";
 import { apiFetch } from "@/lib/api";
-import { projectsSchema } from "@/lib/schemas";
+import { projectsReportsSchema } from "@/lib/schemas";
 
 export default function Home() {
   const {
@@ -19,7 +19,7 @@ export default function Home() {
     queryFn: async () => {
       const response = await apiFetch("/api/projects");
       const data = await response.json();
-      const parsedData = projectsSchema.parse(data);
+      const parsedData = projectsReportsSchema.parse(data);
 
       return parsedData;
     },
@@ -28,11 +28,7 @@ export default function Home() {
   });
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-10 text-3xl">
-        <LoadingOutlined />
-      </div>
-    );
+    return <LoadingOutlined className="self-center py-10 text-3xl" />;
   }
 
   if (isError) {
@@ -66,25 +62,7 @@ export default function Home() {
               <StatusBadge status={project.status} />
               <span className="text-[16px]">Uptime: {project.uptime}%</span>
             </div>
-            <div className="flex flex-wrap gap-0.5">
-              {Array(30 - project.dailyReports.length)
-                .fill(null)
-                .map((_, index) => {
-                  // we're ok with index as key because list is static
-                  // biome-ignore lint/suspicious/noArrayIndexKey: .
-                  return <ReportItem key={index} />;
-                })}
-              {project.dailyReports.map((report) => {
-                return (
-                  <ReportItem
-                    date={report.date}
-                    worstStatus={report.worstStatus}
-                    uptime={report.uptime}
-                    key={report.date}
-                  />
-                );
-              })}
-            </div>
+            <ProjectReportsView project={project} />
           </Card>
         ))}
     </ul>
