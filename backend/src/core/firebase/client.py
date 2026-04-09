@@ -6,7 +6,7 @@ from .config import service_account
 
 # ! NEVER DELETE THIS LINE
 # otherwise app can't inject firebase emulators hosts
-# and firebase will connect to production databaseE
+# and firebase will connect to production database
 load_dotenv()
 
 
