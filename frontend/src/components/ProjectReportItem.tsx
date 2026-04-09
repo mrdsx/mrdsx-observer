@@ -29,18 +29,20 @@ export function ProjectReportItem({
         </div>
       }
     >
-      <div
-        className={cn(
-          "w-2 h-6 rounded",
-          worstStatus === undefined && "bg-gray-300",
-          worstStatus === undefined && isDarkMode && "bg-gray-500",
-          worstStatus === "outage"
-            ? "bg-red-500"
-            : worstStatus === "degraded"
-              ? "bg-yellow-500"
-              : worstStatus === "operational" && "bg-green-500",
-        )}
-      />
+      <div className="w-2 h-6 relative group">
+        <div
+          className={cn(
+            "w-2 h-6 rounded absolute group-hover:bottom-1 bottom-0 duration-50",
+            worstStatus === undefined && "bg-gray-300",
+            worstStatus === undefined && isDarkMode && "bg-gray-500",
+            worstStatus === "outage"
+              ? "bg-red-500"
+              : worstStatus === "degraded"
+                ? "bg-yellow-500"
+                : worstStatus === "operational" && "bg-green-500",
+          )}
+        />
+      </div>
     </Popover>
   );
 }
