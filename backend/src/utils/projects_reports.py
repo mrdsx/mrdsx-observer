@@ -1,10 +1,12 @@
 from datetime import datetime, time, timedelta
 
-from src.core.constants import LOGS_WINDOW_DAYS
+from src.core.constants import LOGS_RETENTION_WINDOW_DAYS
 from src.core.types import ServiceStatus
 
 
-def projects_logs_range(days: int = LOGS_WINDOW_DAYS) -> tuple[datetime, datetime]:
+def projects_logs_range(
+    days: int = LOGS_RETENTION_WINDOW_DAYS,
+) -> tuple[datetime, datetime]:
     now = datetime.now()
     # we substract one day because time window includes current day
     start_date = (now - timedelta(days=days - 1)).replace(
