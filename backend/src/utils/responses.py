@@ -1,11 +1,11 @@
 from httpx import Response
 
-from src.core.constants import MIN_RESPONSE_SECONDS
+from src.core.constants import MAX_RESPONSE_TIME_SECONDS
 from src.core.types import ServiceStatus
 
 
 def is_successful_response(response: Response) -> bool:
-    return response.is_success or response.is_redirect
+    return not response.is_server_error
 
 
 def get_service_status(*responses: Response) -> ServiceStatus:
@@ -14,6 +14,6 @@ def get_service_status(*responses: Response) -> ServiceStatus:
 
     if False in success_list:
         return "outage"
-    elif any(time >= MIN_RESPONSE_SECONDS for time in elapsed_seconds_list):
+    elif any(time >= MAX_RESPONSE_TIME_SECONDS for time in elapsed_seconds_list):
         return "degraded"
     return "operational"

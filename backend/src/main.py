@@ -1,58 +1,152 @@
 import asyncio
-import json
+from datetime import datetime
 from typing import Any
 
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_crons import Crons, get_cron_router
+from fastapi_crons import Crons
+from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 
-from src.api import api_router
-from src.api.dependencies import get_firestore, get_redis
-from src.core.constants import CACHE_TTL_SECONDS, LOGGING_INTERVAL_MINUTES, RedisKeys
-from src.core.settings import get_settings
-from src.lifespan import lifespan
-from src.services.projects import (
-    capture_classic_word_game,
-    capture_olympiad_preparation,
+from api import api_router
+from api.dependencies import (
+    get_firestore,
+    get_projects_reports_repository,
+    get_projects_reports_service,
+    get_redis,
 )
-from src.services.projects_reports import retrieve_projects_reports
+from core.constants import (
+    CACHE_TTL_SECONDS,
+    LOGGING_INTERVAL_MINUTES,
+    FirestoreKeys,
+    RedisKeys,
+)
+from core.settings import get_settings
+from core.types import ServiceStatus
+from lifespan import lifespan
+from schemas.projects_reports import (
+    DailyProjectsReport,
+    ProjectReport,
+    ProjectServiceReport,
+)
+from services.projects_reports import (
+    ProjectsStateSnapshotter,
+)
+from utils.datetime import isodate
 
 settings = get_settings()
 
-app = FastAPI(lifespan=lifespan)
+
+def get_app() -> FastAPI:
+    _app = FastAPI(lifespan=lifespan)
+
+    _app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.frontend_url],
+        allow_methods=["GET"],
+    )
+
+    @_app.get("/")
+    async def root() -> dict[str, Any]:
+        return {"status": "ok"}
+
+    _app.include_router(api_router)
+
+    return _app
+
+
+app = get_app()
 crons = Crons(app)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[settings.frontend_url],
-    allow_methods=["GET"],
-)
-
-
-@app.get("/", response_model=dict[str, Any])
-async def root():
-    return {"status": "ok"}
-
-
-app.include_router(api_router)
-app.include_router(get_cron_router())
 
 
 @crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *")
-async def log_projects_statuses():
+async def report_projects_status():
     db = get_firestore()
     redis = get_redis()
+    snapshotter = ProjectsStateSnapshotter()
+    reports_repository = get_projects_reports_repository()
+    reports_service = get_projects_reports_service()
 
-    async with httpx.AsyncClient() as client:
-        coro1 = capture_olympiad_preparation(client, db)
-        coro2 = capture_classic_word_game(client, db)
+    async with httpx.AsyncClient() as http_client:
+        async with asyncio.TaskGroup() as task_group:
+            task1 = task_group.create_task(
+                snapshotter.capture_olympiad_preparation(http_client=http_client)
+            )
+            task2 = task_group.create_task(
+                snapshotter.capture_classic_word_game(http_client=http_client)
+            )
 
-        await asyncio.gather(coro1, coro2)
+    report_ref = db.document(
+        FirestoreKeys.PROJECTS_REPORTS,
+        isodate(datetime.now()),
+    )
+    report_doc = await report_ref.get()
+    raw_report = report_doc.to_dict()
+    if raw_report is None:
+        raw_report = {
+            "created_at": DatetimeWithNanoseconds.now(),
+            "projects": {},
+        }
 
-    reports_data = await retrieve_projects_reports(db)
+    projects_status: list[tuple[str, str, dict[str, ServiceStatus]]] = [
+        ("olympiad-preparation", "Olympiad Preparation", task1.result()),
+        ("classic-word-game", "Classic word game", task2.result()),
+    ]
+    daily_report = DailyProjectsReport.model_validate(raw_report)
+
+    for project_id, project_name, services_status in projects_status:
+        project = daily_report.projects.get(project_id)
+        if project is None:
+            services_reports: dict[str, ProjectServiceReport] = {}
+
+            for service_name, service_status in services_status.items():
+                operational = 1 if service_status == "operational" else 0
+                degraded = 1 if service_status == "degraded" else 0
+                outages = 1 if service_status == "outage" else 0
+
+                services_reports[service_name] = ProjectServiceReport(
+                    current_status=service_status,
+                    operational=operational,
+                    degraded=degraded,
+                    outages=outages,
+                )
+
+            daily_report.projects[project_id] = ProjectReport(
+                name=project_name,
+                services=services_reports,
+            )
+        else:
+            services_reports: dict[str, ProjectServiceReport] = project.services
+
+            for service_name, service_status in services_status.items():
+                service_details = services_reports.get(service_name)
+                if service_details is None:
+                    operational = 1 if service_status == "operational" else 0
+                    degraded = 1 if service_status == "degraded" else 0
+                    outages = 1 if service_status == "outage" else 0
+
+                    services_reports[service_name] = ProjectServiceReport(
+                        current_status=service_status,
+                        operational=operational,
+                        degraded=degraded,
+                        outages=outages,
+                    )
+                else:
+                    services_reports[service_name].current_status = service_status
+                    if service_status == "operational":
+                        services_reports[service_name].operational += 1
+                    elif service_status == "degraded":
+                        services_reports[service_name].degraded += 1
+                    elif service_status == "outage":
+                        services_reports[service_name].outages += 1
+
+    await report_ref.set(daily_report.model_dump())
+
+    projects_reports = await reports_service.get_projects_reports(
+        reports_repository=reports_repository, db=db
+    )
     await redis.set(
-        RedisKeys.PROJECTS_REPORTS,
-        json.dumps(reports_data),
+        name=RedisKeys.PROJECTS_REPORTS,
+        value=projects_reports.model_dump_json(),
         ex=CACHE_TTL_SECONDS,
     )

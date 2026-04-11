@@ -1,11 +1,11 @@
 from datetime import datetime, time, timedelta
 
-from src.core.constants import LOGS_RETENTION_WINDOW_DAYS
+from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS
 from src.core.types import ServiceStatus
 
 
-def projects_logs_range(
-    days: int = LOGS_RETENTION_WINDOW_DAYS,
+def projects_reports_range(
+    days: int = REPORTS_RETENTION_WINDOW_DAYS,
 ) -> tuple[datetime, datetime]:
     now = datetime.now()
     # we substract one day because time window includes current day
@@ -18,9 +18,10 @@ def projects_logs_range(
 
 
 def worst_status(*statuses: ServiceStatus) -> ServiceStatus:
-    statuses_set = set(statuses)
-    if "outage" in statuses_set:
-        return "outage"
-    elif "degraded" in statuses_set:
-        return "degraded"
+    for status in statuses:
+        if status == "outage":
+            return "outage"
+        elif status == "degraded":
+            return "degraded"
+
     return "operational"
