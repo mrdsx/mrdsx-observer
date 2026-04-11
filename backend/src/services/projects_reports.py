@@ -3,11 +3,13 @@ from dataclasses import asdict
 from datetime import datetime
 from typing import Any
 
+from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from google.cloud.firestore_v1 import DocumentSnapshot
 from google.cloud.firestore_v1.async_stream_generator import AsyncStreamGenerator
 from httpx import AsyncClient
 
-from core.firebase.types import AsyncFirestore
+from core.constants import FirestoreKeys
+from core.firebase.types import AsyncDocumentReference, AsyncFirestore
 from core.models.projects_reports import (
     DailyProjectReportDTO,
     ProjectReportDTO,
@@ -17,6 +19,7 @@ from core.types import ServiceStatus
 from repositories.projects_reports import ProjectsReportsRepository
 from schemas.projects_reports import (
     DailyProjectsReport,
+    ProjectReport,
     ProjectServiceReport,
     ProjectsReportsOut,
 )
@@ -270,3 +273,137 @@ class ProjectsReportsService:
             mapped_reports.append({**report_dict, "id": project_id})
 
         return mapped_reports
+
+
+class DailyProjectsReportUpdater:
+    async def update_daily_report(
+        self,
+        snapshotter: ProjectsStateSnapshotter,
+        http_client: AsyncClient,
+        db: AsyncFirestore,
+    ) -> None:
+        projects_status = await self._get_projects_status(
+            snapshotter=snapshotter,
+            http_client=http_client,
+        )
+
+        report_ref = db.document(
+            FirestoreKeys.PROJECTS_REPORTS,
+            isodate(datetime.now()),
+        )
+        daily_report = await self._get_daily_report(report_ref=report_ref)
+
+        for project_id, project_name, services_status in projects_status:
+            project = daily_report.projects.get(project_id)
+            if project is None:
+                self._insert_project_report(
+                    daily_report=daily_report,
+                    project_id=project_id,
+                    project_name=project_name,
+                    services_status=services_status,
+                )
+            else:
+                self._update_project_report(
+                    project_services=project.services,
+                    services_status=services_status,
+                )
+
+        await report_ref.set(daily_report.model_dump())
+
+    async def _get_projects_status(
+        self,
+        snapshotter: ProjectsStateSnapshotter,
+        http_client: AsyncClient,
+    ) -> list[tuple[str, str, dict[str, ServiceStatus]]]:
+        async with asyncio.TaskGroup() as task_group:
+            task1 = task_group.create_task(
+                snapshotter.capture_olympiad_preparation(http_client=http_client)
+            )
+            task2 = task_group.create_task(
+                snapshotter.capture_classic_word_game(http_client=http_client)
+            )
+
+        projects_status: list[tuple[str, str, dict[str, ServiceStatus]]] = [
+            ("olympiad-preparation", "Olympiad Preparation", task1.result()),
+            ("classic-word-game", "Classic word game", task2.result()),
+        ]
+
+        return projects_status
+
+    async def _get_daily_report(
+        self,
+        report_ref: AsyncDocumentReference,
+    ) -> DailyProjectsReport:
+        report_doc = await report_ref.get()
+        raw_report = report_doc.to_dict()
+        if raw_report is None:
+            raw_report = {
+                "created_at": DatetimeWithNanoseconds.now(),
+                "projects": {},
+            }
+
+        daily_report = DailyProjectsReport.model_validate(raw_report)
+
+        return daily_report
+
+    def _insert_project_report(
+        self,
+        daily_report: DailyProjectsReport,
+        project_id: str,
+        project_name: str,
+        services_status: dict[str, ServiceStatus],
+    ) -> None:
+        services_reports: dict[str, ProjectServiceReport] = {}
+
+        for service_name, service_status in services_status.items():
+            self._insert_project_service_report(
+                services_reports=services_reports,
+                service_name=service_name,
+                service_status=service_status,
+            )
+
+            daily_report.projects[project_id] = ProjectReport(
+                name=project_name,
+                services=services_reports,
+            )
+
+    def _update_project_report(
+        self,
+        project_services: dict[str, ProjectServiceReport],
+        services_status: dict[str, ServiceStatus],
+    ) -> None:
+        services_reports: dict[str, ProjectServiceReport] = project_services
+
+        for service_name, service_status in services_status.items():
+            service_details = services_reports.get(service_name)
+            if service_details is None:
+                self._insert_project_service_report(
+                    services_reports=services_reports,
+                    service_name=service_name,
+                    service_status=service_status,
+                )
+            else:
+                services_reports[service_name].current_status = service_status
+                if service_status == "operational":
+                    services_reports[service_name].operational += 1
+                elif service_status == "degraded":
+                    services_reports[service_name].degraded += 1
+                elif service_status == "outage":
+                    services_reports[service_name].outages += 1
+
+    def _insert_project_service_report(
+        self,
+        services_reports: dict[str, ProjectServiceReport],
+        service_name: str,
+        service_status: ServiceStatus,
+    ) -> None:
+        operational = 1 if service_status == "operational" else 0
+        degraded = 1 if service_status == "degraded" else 0
+        outages = 1 if service_status == "outage" else 0
+
+        services_reports[service_name] = ProjectServiceReport(
+            current_status=service_status,
+            operational=operational,
+            degraded=degraded,
+            outages=outages,
+        )
