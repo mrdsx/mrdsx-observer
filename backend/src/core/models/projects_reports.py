@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from core.types import ServiceStatus
+from src.core.types import ServiceStatus
 
 
 @dataclass(slots=True)

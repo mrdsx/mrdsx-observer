@@ -3,8 +3,8 @@ from datetime import datetime
 from google.cloud.firestore_v1 import And, DocumentSnapshot, FieldFilter
 from google.cloud.firestore_v1.async_stream_generator import AsyncStreamGenerator
 
-from core.constants import FirestoreKeys
-from core.firebase.types import AsyncFirestore
+from src.core.constants import FirestoreKeys
+from src.core.firebase.types import AsyncFirestore
 
 
 class ProjectsReportsRepository:

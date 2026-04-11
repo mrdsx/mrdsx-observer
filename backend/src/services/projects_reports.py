@@ -8,26 +8,26 @@ from google.cloud.firestore_v1 import DocumentSnapshot
 from google.cloud.firestore_v1.async_stream_generator import AsyncStreamGenerator
 from httpx import AsyncClient
 
-from core.constants import FirestoreKeys
-from core.firebase.types import AsyncDocumentReference, AsyncFirestore
-from core.models.projects_reports import (
+from src.core.constants import FirestoreKeys
+from src.core.firebase.types import AsyncDocumentReference, AsyncFirestore
+from src.core.models.projects_reports import (
     DailyProjectReportDTO,
     ProjectReportDTO,
     ProjectStatusDTO,
 )
-from core.types import ServiceStatus
-from repositories.projects_reports import ProjectsReportsRepository
-from schemas.projects_reports import (
+from src.core.types import ServiceStatus
+from src.repositories.projects_reports import ProjectsReportsRepository
+from src.schemas.projects_reports import (
     DailyProjectsReport,
     ProjectReport,
     ProjectServiceReport,
     ProjectsReportsOut,
 )
-from utils.datetime import isodate
-from utils.math import truncate
-from utils.projects_reports import projects_reports_range, worst_status
-from utils.requests import send_request
-from utils.responses import get_service_status
+from src.utils.datetime import isodate
+from src.utils.math import truncate
+from src.utils.projects_reports import projects_reports_range, worst_status
+from src.utils.requests import send_request
+from src.utils.responses import get_service_status
 
 
 class ProjectsStateSnapshotter:

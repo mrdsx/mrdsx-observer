@@ -3,10 +3,10 @@ from functools import lru_cache
 from firebase_admin.firestore_async import client as create_async_firestore
 from redis.asyncio import Redis
 
-from repositories.projects_reports import ProjectsReportsRepository
-from services.projects_reports import ProjectsReportsService
 from src.core.firebase.types import AsyncFirestore
 from src.core.settings import get_settings
+from src.repositories.projects_reports import ProjectsReportsRepository
+from src.services.projects_reports import ProjectsReportsService
 
 settings = get_settings()
 

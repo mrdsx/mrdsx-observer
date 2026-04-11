@@ -2,15 +2,15 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 
-from api.dependencies import (
+from src.api.dependencies import (
     get_firestore,
     get_projects_reports_repository,
     get_projects_reports_service,
 )
-from core.firebase.types import AsyncFirestore
-from repositories.projects_reports import ProjectsReportsRepository
-from schemas.projects_reports import ProjectsReportsOut
-from services.projects_reports import ProjectsReportsService
+from src.core.firebase.types import AsyncFirestore
+from src.repositories.projects_reports import ProjectsReportsRepository
+from src.schemas.projects_reports import ProjectsReportsOut
+from src.services.projects_reports import ProjectsReportsService
 
 router = APIRouter(prefix="/projects")
 

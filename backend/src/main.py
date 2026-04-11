@@ -5,24 +5,25 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_crons import Crons
 
-from api import api_router
-from api.dependencies import (
+from src.api import api_router
+from src.api.dependencies import (
     get_firestore,
     get_projects_reports_repository,
     get_projects_reports_service,
     get_redis,
 )
-from core.constants import (
+from src.core.constants import (
     CACHE_TTL_SECONDS,
     LOGGING_INTERVAL_MINUTES,
     RedisKeys,
 )
-from core.settings import get_settings
-from lifespan import lifespan
-from services.projects_reports import (
+from src.core.settings import get_settings
+from src.services.projects_reports import (
     DailyProjectsReportUpdater,
     ProjectsStateSnapshotter,
 )
+
+from .lifespan import lifespan
 
 settings = get_settings()
 
