@@ -29,10 +29,10 @@ export function ProjectReportItem({
         </div>
       }
     >
-      <div className="w-2 h-6 relative group">
+      <div className="group relative h-6 w-2">
         <div
           className={cn(
-            "w-2 h-6 rounded absolute group-hover:bottom-1 bottom-0 duration-50",
+            "absolute bottom-0 h-6 w-2 rounded duration-50 group-hover:bottom-1",
             worstStatus === undefined && "bg-gray-300",
             worstStatus === undefined && isDarkMode && "bg-gray-500",
             worstStatus === "outage"

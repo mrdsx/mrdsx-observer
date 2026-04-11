@@ -14,7 +14,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
       <AppProvider>
         <Body>
           <Header />
-          <main className="max-w-300 px-4 w-full py-8 flex flex-col">
+          <main className="flex w-full max-w-300 flex-col px-4 py-8">
             {children}
           </main>
         </Body>

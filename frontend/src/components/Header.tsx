@@ -8,7 +8,7 @@ export function Header() {
 
   return (
     <header
-      className="py-4 px-8 border-b flex items-center justify-between w-full"
+      className="flex w-full items-center justify-between border-b px-8 py-4"
       style={{ borderColor: token.colorBorder }}
     >
       <h1 className="text-xl">mrdsx observer</h1>

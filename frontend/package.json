@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "lint": "biome lint --write --unsafe"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",

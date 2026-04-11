@@ -1,18 +1,21 @@
 "use client";
 
-import { ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Card } from "antd";
+import { Card } from "antd";
+import { ZodError } from "zod";
 import { ProjectReportsView } from "@/components/ProjectReportsView";
 import { StatusBadge } from "@/components/StatusAlert";
 import { apiFetch } from "@/lib/api";
 import { projectsReportsSchema } from "@/lib/schemas";
+import { ErrorView } from "../components/ErrorView";
 
 export default function Home() {
   const {
     data: projectsData,
     isPending,
     isError,
+    error,
     refetch,
   } = useQuery({
     queryKey: ["projects"],
@@ -31,20 +34,26 @@ export default function Home() {
     return <LoadingOutlined className="self-center py-10 text-3xl" />;
   }
 
+  if (error instanceof ZodError) {
+    return (
+      <ErrorView
+        content="Inappropriate response from server"
+        refetch={refetch}
+      />
+    );
+  }
+
   if (isError) {
     return (
-      <div className="rounded-lg flex flex-col gap-4 items-center py-20 text-red-600 dark:text-red-400">
-        <div className="inline-flex gap-2">
-          <ExclamationCircleOutlined className="text-xl" />
-          <p className="text">Something went wrong while fetching data</p>
-        </div>
-        <Button onClick={() => refetch()}>Retry</Button>
-      </div>
+      <ErrorView
+        content="Something went wrong while fetching data"
+        refetch={refetch}
+      />
     );
   }
 
   return (
-    <ul className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {projectsData.projects
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((project) => (
@@ -58,8 +67,8 @@ export default function Home() {
             size="small"
             key={project.id}
           >
-            <div className="flex flex-wrap gap-2 justify-between mb-4">
-              <StatusBadge status={project.status} />
+            <div className="mb-4 flex flex-wrap justify-between gap-2">
+              <StatusBadge status={project.currentStatus} />
               <span className="text-[16px]">Uptime: {project.uptime}%</span>
             </div>
             <ProjectReportsView project={project} />
