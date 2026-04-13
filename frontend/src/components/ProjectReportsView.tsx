@@ -2,7 +2,9 @@ import type { Project } from "@/lib/schemas";
 import { ProjectReportItem } from "./ProjectReportItem";
 
 export function ProjectReportsView({ project }: { project: Project }) {
-  const reversedDailyReports = project.dailyReports.toReversed();
+  const sortedReports = project.dailyReports.sort((a, b) => {
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
 
   return (
     <div className="flex flex-wrap gap-0.5">
@@ -13,7 +15,7 @@ export function ProjectReportsView({ project }: { project: Project }) {
           // biome-ignore lint/suspicious/noArrayIndexKey: .
           return <ProjectReportItem key={index} />;
         })}
-      {reversedDailyReports.map((report) => {
+      {sortedReports.map((report) => {
         return (
           <ProjectReportItem
             date={report.date}
