@@ -1,17 +1,17 @@
 "use client";
 
-import { theme } from "antd";
+import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/themeStore";
 
 export function Body({ children }: React.PropsWithChildren) {
-  const { token } = theme.useToken();
+  const isDarkMode = useThemeStore((state) => state.isDarkMode);
 
   return (
     <body
-      className="flex min-h-screen flex-col items-center"
-      style={{
-        background: token.colorBgContainer,
-        color: token.colorText,
-      }}
+      className={cn(
+        "flex min-h-screen flex-col items-center",
+        isDarkMode && "dark",
+      )}
     >
       {children}
     </body>

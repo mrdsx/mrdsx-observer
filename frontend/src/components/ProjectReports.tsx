@@ -1,7 +1,7 @@
 import type { Project } from "@/lib/schemas";
 import { ProjectReportItem } from "./ProjectReportItem";
 
-export function ProjectReportsView({ project }: { project: Project }) {
+export function ProjectReports({ project }: { project: Project }) {
   const sortedReports = project.dailyReports.sort((a, b) => {
     return new Date(a.date).getTime() - new Date(b.date).getTime();
   });

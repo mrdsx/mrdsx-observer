@@ -1,6 +1,12 @@
-import { Popover } from "antd";
+import { useState } from "react";
 import { cn, mapDate } from "@/lib/utils";
-import { useThemeStore } from "@/stores/themeStore";
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "./ui/popover";
 
 type ReportItemProps = {
   date?: string;
@@ -13,36 +19,45 @@ export function ProjectReportItem({
   worstStatus,
   uptime,
 }: ReportItemProps) {
-  const isDarkMode = useThemeStore((state) => state.isDarkMode);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Popover
-      title={date !== undefined && mapDate(date)}
-      content={
-        <div>
-          <p className="flex justify-between gap-2">
-            Worst status: <span>{worstStatus ?? "—"}</span>
-          </p>
-          <p className="flex justify-between gap-4">
-            Uptime: <span>{uptime !== undefined ? `${uptime}%` : "—"}</span>
-          </p>
-        </div>
-      }
-    >
-      <div className="group relative h-6 w-2">
-        <div
-          className={cn(
-            "absolute bottom-0 h-6 w-2 rounded duration-50 group-hover:bottom-1",
-            worstStatus === undefined && "bg-gray-300",
-            worstStatus === undefined && isDarkMode && "bg-gray-500",
-            worstStatus === "outage"
-              ? "bg-red-500"
-              : worstStatus === "degraded"
-                ? "bg-yellow-500"
-                : worstStatus === "operational" && "bg-green-500",
-          )}
-        />
-      </div>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger
+        nativeButton={false}
+        render={
+          // biome-ignore lint/a11y/noStaticElementInteractions: rm -rf /
+          <div
+            className="group outline-0"
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+          >
+            <div
+              className={cn(
+                "h-6 w-2 rounded duration-50",
+                isOpen && "-translate-y-1",
+                worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
+                worstStatus === "outage"
+                  ? "bg-red-500"
+                  : worstStatus === "degraded"
+                    ? "bg-yellow-500"
+                    : worstStatus === "operational" && "bg-green-500",
+              )}
+            />
+          </div>
+        }
+      />
+      {/* DO NOT REMOVE `sideOffset` */}
+      {/* Removing it will result in layout flicker when hovering from bottom */}
+      <PopoverContent className="max-w-50" sideOffset={10}>
+        <PopoverHeader>
+          <PopoverTitle>{date !== undefined && mapDate(date)}</PopoverTitle>
+          <div className="text-muted-foreground">
+            <p>Status: {worstStatus === undefined ? "-" : worstStatus}</p>
+            <p>Uptime: {uptime === undefined ? "-" : `${uptime}%`}</p>
+          </div>
+        </PopoverHeader>
+      </PopoverContent>
     </Popover>
   );
 }
