@@ -19,33 +19,23 @@ export function ProjectReportItem({
   worstStatus,
   uptime,
 }: ReportItemProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        nativeButton={false}
-        render={
-          // biome-ignore lint/a11y/noStaticElementInteractions: rm -rf /
-          <div
-            className="group outline-0"
-            onMouseEnter={() => setIsOpen(true)}
-            onMouseLeave={() => setIsOpen(false)}
-          >
-            <div
-              className={cn(
-                "h-6 w-2 rounded duration-50",
-                isOpen && "-translate-y-1",
-                worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
-                worstStatus === "outage"
-                  ? "bg-red-500"
-                  : worstStatus === "degraded"
-                    ? "bg-yellow-500"
-                    : worstStatus === "operational" && "bg-green-500",
-              )}
-            />
-          </div>
-        }
+        className={cn(
+          "h-6 w-2 rounded duration-50 outline-0",
+          open && "-translate-y-1",
+          worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
+          worstStatus === "outage"
+            ? "bg-red-500"
+            : worstStatus === "degraded"
+              ? "bg-yellow-500"
+              : worstStatus === "operational" && "bg-green-500",
+        )}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
       />
       {/* DO NOT REMOVE `sideOffset` */}
       {/* Removing it will result in layout flicker when hovering from bottom */}

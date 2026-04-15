@@ -1,7 +1,5 @@
-"use client";
-
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useThemeStore } from "@/stores/themeStore";
+import { useThemeStore } from "@/stores/theme";
 import { Button } from "./ui/button";
 
 export function ToggleThemeButton() {

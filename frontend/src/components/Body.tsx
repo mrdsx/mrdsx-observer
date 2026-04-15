@@ -1,19 +1,8 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/stores/themeStore";
+import { useThemeStore } from "@/stores/theme";
 
 export function Body({ children }: React.PropsWithChildren) {
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
 
-  return (
-    <body
-      className={cn(
-        "flex min-h-screen flex-col items-center",
-        isDarkMode && "dark",
-      )}
-    >
-      {children}
-    </body>
-  );
+  return <body className={cn(isDarkMode && "dark")}>{children}</body>;
 }

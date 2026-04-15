@@ -1,6 +1,12 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export function appContainer(): HTMLElement | null | undefined {
+  return typeof document === "undefined"
+    ? undefined
+    : document.getElementById("root");
+}
+
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }

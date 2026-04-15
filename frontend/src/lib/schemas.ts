@@ -1,13 +1,15 @@
 import { z } from "zod";
 
+const statusSchema = z.enum(["operational", "degraded", "outage"]);
+
 const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
-  currentStatus: z.enum(["operational", "degraded", "outage"]),
+  currentStatus: statusSchema,
   uptime: z.number().min(0).max(100),
   dailyReports: z.array(
     z.object({
-      worstStatus: z.enum(["operational", "degraded", "outage"]),
+      worstStatus: statusSchema,
       uptime: z.number().min(0).max(100),
       date: z.iso.date(),
     }),

@@ -13,7 +13,7 @@ export function ErrorView({ content, refetch }: ErrorViewProps) {
         <AlertCircleIcon className="text-xl" />
         <p>{content}</p>
       </div>
-      <Button onClick={() => refetch()}>Retry</Button>
+      <Button onClick={refetch}>Retry</Button>
     </div>
   );
 }

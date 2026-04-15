@@ -1,5 +1,3 @@
-"use client";
-
 import { ToggleThemeButton } from "./ToggleThemeButton";
 
 export function Header() {

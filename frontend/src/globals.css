@@ -121,9 +121,14 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply font-sans;
+    font-family: "Geist", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  div#root {
+    @apply flex min-h-screen flex-col items-center;
   }
 }

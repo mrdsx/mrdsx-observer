@@ -1,16 +1,19 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { LoaderCircleIcon } from "lucide-react";
 import { ZodError } from "zod";
-import { ErrorView } from "@/components/ErrorView";
-import { ProjectReports } from "@/components/ProjectReports";
-import { StatusBadge } from "@/components/StatusBadge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiFetch } from "@/lib/api";
-import { projectsReportsSchema } from "@/lib/schemas";
+import { ErrorView } from "../components/ErrorView";
+import { ProjectReports } from "../components/ProjectReports";
+import { StatusBadge } from "../components/StatusBadge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { apiFetch } from "../lib/api";
+import { projectsReportsSchema } from "../lib/schemas";
 
-export default function Home() {
+export default function HomePage() {
   const {
     data: projectsData,
     isPending,
@@ -66,6 +69,7 @@ export default function Home() {
                 <StatusBadge status={project.currentStatus} />
                 <span className="text-[16px]">Uptime: {project.uptime}%</span>
               </div>
+
               <ProjectReports project={project} />
             </CardContent>
           </Card>
