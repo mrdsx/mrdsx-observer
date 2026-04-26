@@ -1,4 +1,9 @@
 services:
+  frontend:
+    build: frontend
+    ports:
+      - "3000:3000"
+
   firebase:
     build: firebase
     ports:
