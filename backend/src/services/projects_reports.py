@@ -107,6 +107,21 @@ class ProjectsStateSnapshotter:
             "API": api_status,
         }
 
+    async def capture_swift_tracker(
+        self,
+        http_client: AsyncClient,
+    ) -> dict[str, ServiceStatus]:
+        site_response = await send_request(
+            "https://swift-tracker.net",
+            http_client=http_client,
+        )
+
+        site_status = get_service_status(site_response)
+
+        return {
+            "Site": site_status,
+        }
+
 
 class ProjectsReportsService:
     async def get_projects_reports(
@@ -340,11 +355,15 @@ class DailyProjectsReportUpdater:
             task3 = task_group.create_task(
                 snapshotter.capture_mrdsx_observer(http_client=http_client)
             )
+            task4 = task_group.create_task(
+                snapshotter.capture_swift_tracker(http_client=http_client)
+            )
 
         projects_status: list[tuple[str, str, dict[str, ServiceStatus]]] = [
             ("olympiad-preparation", "Olympiad Preparation", task1.result()),
             ("classic-word-game", "Classic word game", task2.result()),
             ("mrdsx-observer", "mrdsx observer", task3.result()),
+            ("swift-tracker", "Swift Tracker", task4.result()),
         ]
 
         return projects_status
