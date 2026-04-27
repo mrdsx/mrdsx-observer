@@ -1,12 +1,12 @@
 from functools import lru_cache
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     app_env: Literal["prod", "dev"] = "dev"
-    frontend_url: str = "http://localhost:3000"
+    allowed_host: str = "http://localhost:3000"
 
     firebase_private_key: str
 
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     redis_password: str | None = None
 
     @property
-    def redis_settings(self):
+    def redis_settings(self) -> dict[str, Any]:
         return {
             "host": self.redis_host,
             "port": self.redis_port,
