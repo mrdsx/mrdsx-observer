@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: Literal["prod", "dev"] = "dev"
-    allowed_host: str = "http://localhost:3000"
 
     firebase_private_key: str
 
