@@ -3,6 +3,8 @@ services:
     build: frontend
     ports:
       - "3000:3000"
+    environment:
+      PUBLIC_ENV__API_URL: https://mrdsx-observer-39f3b422.fastapicloud.dev
 
   firebase:
     build: firebase
