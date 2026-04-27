@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn, mapDate } from "@/lib/utils";
+import { cn, dateToLocaleDateString } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -8,11 +8,11 @@ import {
   PopoverTrigger,
 } from "./ui/popover";
 
-type ReportItemProps = {
-  date?: string;
-  worstStatus?: string;
-  uptime?: number;
-};
+type ReportItemProps = Partial<{
+  date: string;
+  worstStatus: string;
+  uptime: number;
+}>;
 
 export function ProjectReportItem({
   date,
@@ -41,7 +41,9 @@ export function ProjectReportItem({
       {/* Removing it will result in layout flicker when hovering from bottom */}
       <PopoverContent className="max-w-50" sideOffset={10}>
         <PopoverHeader>
-          <PopoverTitle>{date !== undefined && mapDate(date)}</PopoverTitle>
+          <PopoverTitle>
+            {date !== undefined && dateToLocaleDateString(date)}
+          </PopoverTitle>
           <div className="text-muted-foreground">
             <p>Status: {worstStatus === undefined ? "-" : worstStatus}</p>
             <p>Uptime: {uptime === undefined ? "-" : `${uptime}%`}</p>

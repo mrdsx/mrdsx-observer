@@ -65,7 +65,7 @@ export default function HomePage() {
                 <span className="text-[16px]">Uptime: {project.uptime}%</span>
               </div>
 
-              <ProjectReports project={project} />
+              <ProjectReports dailyReports={project.dailyReports} />
             </CardContent>
           </Card>
         ))}
