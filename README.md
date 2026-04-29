@@ -17,7 +17,7 @@ docker compose -f compose.dev.yaml up   # Start local Firebase and Redis
 ## Production
 
 ```sh
-docker compose -f compose.prod.yaml up
+docker compose -f compose.prod.yaml up   # Start frontend, backend and Redis in production mode
 ```
 
-Frontend needs Docker because it's self-hosted. Firebase and Redis are already deployed and do not require start up commands.
+We use Docker for frontend, backend and Redis because they're self-hosted. Firebase is deployed to cloud and doesn't require start up command.
