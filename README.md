@@ -9,16 +9,15 @@ A dashboard for monitoring my projects status.
 ## Development
 
 ```sh
-bun dev                                # Start frontend
-uv run uvicorn src.main:app --reload   # Start backend
-docker compose up firebase redis       # Start local Firebase and Redis
+bun dev                                 # Start frontend
+uv run uvicorn src.main:app --reload    # Start backend
+docker compose -f compose.dev.yaml up   # Start local Firebase and Redis
 ```
 
 ## Production
 
 ```sh
-docker compose up frontend    # Start frontend
-uv run uvicorn src.main:app   # Start backend
+docker compose -f compose.prod.yaml up
 ```
 
 Frontend needs Docker because it's self-hosted. Firebase and Redis are already deployed and do not require start up commands.

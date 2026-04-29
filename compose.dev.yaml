@@ -1,0 +1,13 @@
+services:
+  firebase:
+    build: firebase
+    ports:
+      - "4000:4000"
+      - "8080:8080"
+
+  redis:
+    ports:
+      - "6379:6379"
+    image: redis:8.6.2-alpine
+    container_name: my-redis
+    restart: always
