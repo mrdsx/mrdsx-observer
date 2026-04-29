@@ -14,6 +14,6 @@ export default defineConfig({
     },
   },
   preview: {
-    allowedHosts: ["mrdsx-observer.ddns.net"]
-  }
+    allowedHosts: ["mrdsx-observer.ddns.net"],
+  },
 });
