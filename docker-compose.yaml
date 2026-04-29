@@ -2,9 +2,17 @@ services:
   frontend:
     build: frontend
     ports:
-      - "3000:3000"
+      - "3010:3000"
     environment:
-      PUBLIC_ENV__API_URL: https://mrdsx-observer-39f3b422.fastapicloud.dev
+      PUBLIC_ENV__API_URL: "http://localhost:8010"
+
+  backend:
+    build: backend
+    ports:
+      - "8010:8000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
   firebase:
     build: firebase
@@ -15,6 +23,4 @@ services:
   redis:
     image: redis:8.6.2-alpine
     container_name: my-redis
-    ports:
-      - "6379:6379"
     restart: always

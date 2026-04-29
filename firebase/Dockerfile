@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.11-alpine
+FROM oven/bun:1.3.13-alpine
 
 RUN apk add openjdk21-jre-headless
 
