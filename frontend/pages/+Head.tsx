@@ -1,3 +1,5 @@
+import favicon from "./favicon.svg"
+
 export default function Head() {
   return (
     <>
@@ -11,6 +13,7 @@ export default function Head() {
         href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
         rel="stylesheet"
       />
+      <link rel="icon" href={favicon} type="image/svg+xml" />
     </>
   );
 }
