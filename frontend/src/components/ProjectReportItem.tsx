@@ -24,22 +24,25 @@ export function ProjectReportItem({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        className={cn(
-          "h-6 w-2 rounded duration-50 outline-0",
-          open && "-translate-y-1",
-          worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
-          worstStatus === "outage"
-            ? "bg-red-500"
-            : worstStatus === "degraded"
-              ? "bg-yellow-500"
-              : worstStatus === "operational" && "bg-green-500",
-        )}
+        className="group outline-0"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
-      />
+      >
+        <div
+          className={cn(
+            "h-6 w-2 rounded group-hover:-translate-y-1 duration-50 outline-0",
+            worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
+            worstStatus === "outage"
+              ? "bg-red-500"
+              : worstStatus === "degraded"
+                ? "bg-yellow-500"
+                : worstStatus === "operational" && "bg-green-500",
+          )}
+        />
+      </PopoverTrigger>
       {/* DO NOT REMOVE `sideOffset` */}
       {/* Removing it will result in layout flicker when hovering from bottom */}
-      <PopoverContent className="max-w-50" sideOffset={10}>
+      <PopoverContent className="max-w-50" sideOffset={15}>
         <PopoverHeader>
           <PopoverTitle>
             {date !== undefined && dateToLocaleDateString(date)}
