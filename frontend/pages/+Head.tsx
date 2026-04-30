@@ -1,4 +1,4 @@
-import favicon from "./favicon.svg"
+import favicon from "./favicon.svg";
 
 export default function Head() {
   return (

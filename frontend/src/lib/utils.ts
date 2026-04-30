@@ -20,6 +20,7 @@ export function dateToLocaleDateString(value: string): string {
     month: "long",
     year: "numeric",
   };
+
   return date.toLocaleDateString("en-us", options);
 }
 
