@@ -8,4 +8,6 @@ export default {
   // https://vike.dev/head-tags
   title: "mrdsx observer",
   extends: [vikeReact],
+
+  server: true,
 } satisfies Config;

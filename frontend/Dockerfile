@@ -6,4 +6,4 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 COPY . .
 
-CMD ["bun", "preview"]
+CMD ["sh", "-c", "bun run build && bun ./dist/server/index.mjs"]

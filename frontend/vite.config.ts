@@ -13,7 +13,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  preview: {
-    allowedHosts: ["mrdsx-observer.ddns.net"],
-  },
 });
