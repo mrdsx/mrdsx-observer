@@ -9,11 +9,11 @@ export default function HomePage() {
   const { data: projectsData, success, code } = useData<Data>();
 
   if (code === "INVALID_RESPONSE") {
-    return <ErrorView content="Inappropriate response from server" />;
+    return <ErrorView content="Inappropriate response from server." />;
   }
 
   if (!success || projectsData === undefined) {
-    return <ErrorView content="Something went wrong while fetching data" />;
+    return <ErrorView content="Something went wrong. Try again later." />;
   }
 
   return (
