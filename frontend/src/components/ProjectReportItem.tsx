@@ -31,6 +31,7 @@ export function ProjectReportItem({
         <div
           className={cn(
             "h-6 w-2 rounded group-hover:-translate-y-1 duration-50 outline-0",
+            open ? "-translate-y-1" : "group-hover:translate-y-0",
             worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
             worstStatus === "outage"
               ? "bg-red-500"
