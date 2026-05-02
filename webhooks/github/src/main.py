@@ -2,10 +2,11 @@ from typing import Annotated
 
 from fastapi import BackgroundTasks, FastAPI, Header
 
+from src.lifespan import lifespan
 from src.schemas import GithubWebhookEvent
 from src.utils import deploy_app
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
