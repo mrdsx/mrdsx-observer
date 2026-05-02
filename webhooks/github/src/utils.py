@@ -43,15 +43,15 @@ def get_services_from_paths(paths: list[str]) -> set[str]:
 
 def handle_project_update(commits: list[GithubCommit]) -> None:
     os.chdir("../../scripts")
-    webhooks_updated = has_dir_updated(commits, "webhooks/")
-    scripts_updated = has_dir_updated(commits, "scripts/")
+    webhooks_updated = has_path_updated(commits, "webhooks/")
+    scripts_updated = has_path_updated(commits, "scripts/")
     if webhooks_updated or scripts_updated:
         subprocess.run(["chmod", "+x", SYNC_CODE_SCRIPT])
         subprocess.Popen([SYNC_CODE_SCRIPT])
     os.chdir("../webhooks/github")
 
 
-def has_dir_updated(commits: list[GithubCommit], path: str) -> bool:
+def has_path_updated(commits: list[GithubCommit], path: str) -> bool:
     for commit in commits:
         for added in commit.added:
             if added.startswith(path):
