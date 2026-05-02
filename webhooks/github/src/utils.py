@@ -5,6 +5,7 @@ from src.schemas import GithubCommit, GithubWebhookEvent
 from src.settings import settings
 
 START_SERVICE_SCRIPT = f"./start-service.{settings.app_env}.sh"
+SYNC_CODE_SCRIPT = "./sync-code.sh"
 
 
 def deploy_app(github_event: GithubWebhookEvent) -> None:
@@ -14,6 +15,7 @@ def deploy_app(github_event: GithubWebhookEvent) -> None:
 
     services = get_services_from_commits(github_event.commits)
     handle_services_start(services)
+    handle_webhooks_update(github_event.commits)
 
 
 def get_services_from_commits(commits: list[GithubCommit]) -> set[str]:
@@ -37,6 +39,32 @@ def get_services_from_paths(paths: list[str]) -> set[str]:
             services.add("backend")
 
     return services
+
+
+def handle_webhooks_update(commits: list[GithubCommit]) -> None:
+    os.chdir("../../scripts")
+    any_updated = any_webhook_updated(commits)
+    if any_updated:
+        subprocess.run(["chmod", "+x", SYNC_CODE_SCRIPT])
+        subprocess.Popen([SYNC_CODE_SCRIPT])
+    os.chdir("../webhooks/github")
+
+
+def any_webhook_updated(commits: list[GithubCommit]) -> bool:
+    for commit in commits:
+        for added in commit.added:
+            if added.startswith("webhooks/"):
+                return True
+
+        for removed in commit.removed:
+            if removed.startswith("webhooks/"):
+                return True
+
+        for modified in commit.modified:
+            if modified.startswith("webhooks/"):
+                return True
+
+    return False
 
 
 def handle_services_start(services: set[str]) -> None:
