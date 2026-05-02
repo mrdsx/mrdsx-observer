@@ -15,7 +15,7 @@ def deploy_app(github_event: GithubWebhookEvent) -> None:
 
     services = get_services_from_commits(github_event.commits)
     handle_services_start(services)
-    handle_webhooks_update(github_event.commits)
+    handle_project_update(github_event.commits)
 
 
 def get_services_from_commits(commits: list[GithubCommit]) -> set[str]:
@@ -41,27 +41,28 @@ def get_services_from_paths(paths: list[str]) -> set[str]:
     return services
 
 
-def handle_webhooks_update(commits: list[GithubCommit]) -> None:
+def handle_project_update(commits: list[GithubCommit]) -> None:
     os.chdir("../../scripts")
-    any_updated = any_webhook_updated(commits)
-    if any_updated:
+    webhooks_updated = has_dir_updated(commits, "webhooks/")
+    scripts_updated = has_dir_updated(commits, "scripts/")
+    if webhooks_updated or scripts_updated:
         subprocess.run(["chmod", "+x", SYNC_CODE_SCRIPT])
         subprocess.Popen([SYNC_CODE_SCRIPT])
     os.chdir("../webhooks/github")
 
 
-def any_webhook_updated(commits: list[GithubCommit]) -> bool:
+def has_dir_updated(commits: list[GithubCommit], path: str) -> bool:
     for commit in commits:
         for added in commit.added:
-            if added.startswith("webhooks/"):
+            if added.startswith(path):
                 return True
 
         for removed in commit.removed:
-            if removed.startswith("webhooks/"):
+            if removed.startswith(path):
                 return True
 
         for modified in commit.modified:
-            if modified.startswith("webhooks/"):
+            if modified.startswith(path):
                 return True
 
     return False
