@@ -22,5 +22,11 @@ const projectsReportsSchema = z.object({
 
 type DailyReport = z.infer<typeof dailyReportSchema>;
 type Project = z.infer<typeof projectSchema>;
+type ProjectsReports = z.infer<typeof projectsReportsSchema>;
 
-export { type DailyReport, type Project, projectsReportsSchema };
+export {
+  type DailyReport,
+  type Project,
+  type ProjectsReports,
+  projectsReportsSchema,
+};

@@ -1,1 +1,7 @@
 export const REPORTS_WINDOW_DAYS = 30;
+
+export const STATUS_CODES = {
+  OK: "OK",
+  INVALID_RESPONSE: "INVALID_RESPONSE",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+} as const;
