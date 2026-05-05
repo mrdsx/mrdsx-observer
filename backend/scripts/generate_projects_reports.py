@@ -20,7 +20,7 @@ from src.utils.datetime import isodate
 
 initialize_firebase()
 
-TIME_WINDOW_DAYS = 30
+TIME_WINDOW_DAYS = 40
 
 
 def get_random_status() -> ServiceStatus:

@@ -25,3 +25,18 @@ class ProjectsReportsRepository:
         reports_stream = reports_ref.stream()
 
         return reports_stream
+
+    async def delete_old_reports(
+        self,
+        cutoff_date: datetime,
+        db: AsyncFirestore,
+    ) -> None:
+        reports_ref = db.collection(FirestoreKeys.PROJECTS_REPORTS).where(
+            filter=FieldFilter("created_at", "<", cutoff_date)
+        )
+        reports_stream = reports_ref.stream()
+
+        batch = db.batch()
+        async for report in reports_stream:
+            batch.delete(report.reference)
+        await batch.commit()
