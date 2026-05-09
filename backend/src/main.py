@@ -24,7 +24,6 @@ from src.services.projects_reports import (
     DailyProjectsReportUpdater,
     ProjectsStateSnapshotter,
 )
-from src.utils.datetime import isodate
 
 from .lifespan import lifespan
 

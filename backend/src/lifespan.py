@@ -13,9 +13,9 @@ settings = get_settings()
 async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
     if settings.app_env == "dev":
         print("Starting app with following settings:")
-        print(f"Environment  - {settings.app_env}")
-        print(f"Redis host   - {settings.redis_host}")
-        print(f"Redis port   - {settings.redis_port}")
+        print(f"Environment - {settings.app_env}")
+        print(f"Redis host  - {settings.redis_host}")
+        print(f"Redis port  - {settings.redis_port}")
 
     initialize_firebase()
     yield

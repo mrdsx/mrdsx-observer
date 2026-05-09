@@ -4,8 +4,6 @@ from datetime import datetime
 from typing import Any
 
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
-from google.cloud.firestore_v1 import DocumentSnapshot
-from google.cloud.firestore_v1.async_stream_generator import AsyncStreamGenerator
 from httpx import AsyncClient
 
 from src.core.constants import FirestoreKeys
@@ -130,11 +128,11 @@ class ProjectsReportsService:
         db: AsyncFirestore,
     ) -> ProjectsReportsOut:
         start_date, end_date = projects_reports_range()
-        reports_stream = await reports_repository.fetch_reports(
+        raw_reports = await reports_repository.fetch_reports(
             start_date=start_date, end_date=end_date, db=db
         )
 
-        daily_reports = await self._validate_daily_reports(reports=reports_stream)
+        daily_reports = self._validate_daily_reports(reports=raw_reports)
         normalized_reports, latest_projects_status = self._normalize_projects_reports(
             daily_reports=daily_reports
         )
@@ -145,21 +143,20 @@ class ProjectsReportsService:
         mapped_projects_reports = self._map_projects_reports(
             projects_reports=projects_status
         )
-        projects_reports = ProjectsReportsOut.model_validate({
-            "projects": mapped_projects_reports
-        })
+        projects_reports = ProjectsReportsOut.model_validate(
+            {"projects": mapped_projects_reports}
+        )
 
         return projects_reports
 
-    async def _validate_daily_reports(
+    def _validate_daily_reports(
         self,
-        reports: AsyncStreamGenerator[DocumentSnapshot],
+        reports: list[dict[str, Any]],
     ) -> list[DailyProjectsReport]:
         daily_reports: list[DailyProjectsReport] = []
-        async for raw_report in reports:
-            daily_reports.append(
-                DailyProjectsReport.model_validate(raw_report.to_dict())
-            )
+
+        for raw_report in reports:
+            daily_reports.append(DailyProjectsReport.model_validate(raw_report))
 
         return daily_reports
 

@@ -1,7 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from google.cloud.firestore_v1 import And, DocumentSnapshot, FieldFilter
-from google.cloud.firestore_v1.async_stream_generator import AsyncStreamGenerator
+from google.cloud.firestore_v1 import And, FieldFilter
 
 from src.core.constants import FirestoreKeys
 from src.core.firebase.types import AsyncFirestore
@@ -13,7 +13,7 @@ class ProjectsReportsRepository:
         start_date: datetime,
         end_date: datetime,
         db: AsyncFirestore,
-    ) -> AsyncStreamGenerator[DocumentSnapshot]:
+    ) -> list[dict[str, Any]]:
         reports_ref = db.collection(FirestoreKeys.PROJECTS_REPORTS).where(
             filter=And(
                 [
@@ -24,7 +24,12 @@ class ProjectsReportsRepository:
         )
         reports_stream = reports_ref.stream()
 
-        return reports_stream
+        result: list[dict[str, Any]] = []
+        async for report in reports_stream:
+            report_dict = report.to_dict()
+            if report_dict is not None:
+                result.append(report_dict)
+        return result
 
     async def delete_old_reports(
         self,
