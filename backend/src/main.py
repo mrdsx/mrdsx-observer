@@ -53,13 +53,12 @@ crons = Crons(app)
 
 
 # every X minutes
-# where X is {LOGGING_INTERVAL_MINUTES}
 @crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *")
 async def report_projects_status() -> None:
     snapshotter = ProjectsStateSnapshotter()
     daily_report_updater = DailyProjectsReportUpdater()
-    reports_repository = get_projects_reports_repository()
-    reports_service = get_projects_reports_service()
+    projects_reports_repository = get_projects_reports_repository()
+    projects_reports_service = get_projects_reports_service()
     db = get_firestore()
     redis = get_redis()
 
@@ -70,8 +69,8 @@ async def report_projects_status() -> None:
             db=db,
         )
 
-    projects_reports = await reports_service.get_projects_reports(
-        reports_repository=reports_repository,
+    projects_reports = await projects_reports_service.get_projects_reports(
+        projects_reports_repository=projects_reports_repository,
         db=db,
     )
     await redis.set(
@@ -83,7 +82,7 @@ async def report_projects_status() -> None:
 
 # every day at midnight
 @crons.cron("0 0 * * *")
-async def hi() -> None:
+async def delete_old_reports() -> None:
     reports_repository = get_projects_reports_repository()
     db = get_firestore()
 

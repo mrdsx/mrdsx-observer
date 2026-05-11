@@ -1,18 +1,27 @@
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
-from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, NonNegativeInt
 
 from src.core.types import ServiceStatus
-from src.schemas.api import api_model_config
+from src.schemas.api import api_model_config, uptime_field
 
 
 class DailyProjectsReport(BaseModel):
     created_at: DatetimeWithNanoseconds
-    projects: dict[str, ProjectReport]
+    projects: dict[str, dict[str, ProjectServiceReport]]
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class ProjectReport(BaseModel):
+# TODO: remove after migration is completed
+class DailyProjectsReport_deprecated(BaseModel):
+    created_at: DatetimeWithNanoseconds
+    projects: dict[str, ProjectReport_deprecated]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+# TODO: remove after migration is completed
+class ProjectReport_deprecated(BaseModel):
     name: str
     services: dict[str, ProjectServiceReport]
 
@@ -34,7 +43,7 @@ class ProjectReportOut(BaseModel):
     id: str
     name: str
     current_status: ServiceStatus
-    uptime: float = Field(ge=0, le=100)
+    uptime: float = uptime_field
     daily_reports: list[DailyProjectReportOut]
 
     model_config = api_model_config
@@ -42,7 +51,7 @@ class ProjectReportOut(BaseModel):
 
 class DailyProjectReportOut(BaseModel):
     worst_status: ServiceStatus
-    uptime: float = Field(ge=0, le=100)
+    uptime: float = uptime_field
     date: str
 
     model_config = api_model_config

@@ -1,12 +1,11 @@
 import asyncio
-from dataclasses import asdict
 from datetime import datetime
 from typing import Any
 
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from httpx import AsyncClient
 
-from src.core.constants import FirestoreKeys
+from src.core.constants import FirestoreKeys, project_names
 from src.core.firebase.types import AsyncDocumentReference, AsyncFirestore
 from src.core.models.projects_reports import (
     DailyProjectReportDTO,
@@ -17,13 +16,16 @@ from src.core.types import ServiceStatus
 from src.repositories.projects_reports import ProjectsReportsRepository
 from src.schemas.projects_reports import (
     DailyProjectsReport,
-    ProjectReport,
     ProjectServiceReport,
     ProjectsReportsOut,
 )
 from src.utils.datetime import isodate
 from src.utils.math import truncate
-from src.utils.projects_reports import projects_reports_range, worst_status
+from src.utils.projects_reports import (
+    projects_reports_range,
+    validate_projects_reports,
+    worst_status,
+)
 from src.utils.requests import send_request
 from src.utils.responses import get_service_status
 
@@ -124,21 +126,21 @@ class ProjectsStateSnapshotter:
 class ProjectsReportsService:
     async def get_projects_reports(
         self,
-        reports_repository: ProjectsReportsRepository,
+        projects_reports_repository: ProjectsReportsRepository,
         db: AsyncFirestore,
     ) -> ProjectsReportsOut:
         start_date, end_date = projects_reports_range()
-        raw_reports = await reports_repository.fetch_reports(
+        raw_reports = await projects_reports_repository.fetch_reports(
             start_date=start_date, end_date=end_date, db=db
         )
 
-        daily_reports = self._validate_daily_reports(reports=raw_reports)
+        daily_reports = validate_projects_reports(reports=raw_reports)
         normalized_reports, latest_projects_status = self._normalize_projects_reports(
             daily_reports=daily_reports
         )
         projects_status = self._compute_projects_status_and_uptime(
-            normalized_reports,
-            latest_projects_status,
+            projects_reports=normalized_reports,
+            latest_projects_status=latest_projects_status,
         )
         mapped_projects_reports = self._map_projects_reports(
             projects_reports=projects_status
@@ -148,17 +150,6 @@ class ProjectsReportsService:
         )
 
         return projects_reports
-
-    def _validate_daily_reports(
-        self,
-        reports: list[dict[str, Any]],
-    ) -> list[DailyProjectsReport]:
-        daily_reports: list[DailyProjectsReport] = []
-
-        for raw_report in reports:
-            daily_reports.append(DailyProjectsReport.model_validate(raw_report))
-
-        return daily_reports
 
     def _normalize_projects_reports(
         self,
@@ -172,11 +163,11 @@ class ProjectsReportsService:
                 existing_project_reports = projects_reports.get(project_id)
                 if existing_project_reports is None:
                     projects_reports[project_id] = ProjectReportDTO(
-                        name=project_report.name,
+                        name=project_names.get(project_id, project_id),
                         daily_reports={},
                     )
 
-                project = self._compute_project_status(project_report.services)
+                project = self._compute_project_status(project_report)
 
                 projects_reports[project_id].daily_reports[
                     isodate(daily_report.created_at)
@@ -289,15 +280,26 @@ class ProjectsReportsService:
         mapped_reports: list[dict[str, Any]] = []
 
         for project_id, project_report in projects_reports.items():
-            report_dict = asdict(project_report)
-            daily_reports: dict[str, Any] = report_dict["daily_reports"]
-
             mapped_daily_reports: list[dict[str, Any]] = []
-            for date, daily_report in daily_reports.items():
-                mapped_daily_reports.append({**daily_report, "date": date})
 
-            report_dict["daily_reports"] = mapped_daily_reports
-            mapped_reports.append({**report_dict, "id": project_id})
+            for date, daily_report in project_report.daily_reports.items():
+                mapped_daily_reports.append(
+                    {
+                        "date": date,
+                        "worst_status": daily_report.worst_status,
+                        "uptime": daily_report.uptime,
+                    }
+                )
+
+            mapped_reports.append(
+                {
+                    "id": project_id,
+                    "name": project_report.name,
+                    "daily_reports": mapped_daily_reports,
+                    "current_status": project_report.current_status,
+                    "uptime": project_report.uptime,
+                }
+            )
 
         return mapped_reports
 
@@ -314,24 +316,22 @@ class DailyProjectsReportUpdater:
             http_client=http_client,
         )
 
-        report_ref = db.document(
-            FirestoreKeys.PROJECTS_REPORTS,
-            isodate(datetime.now()),
+        report_ref = db.collection(FirestoreKeys.PROJECTS_REPORTS).document(
+            isodate(datetime.now())
         )
         daily_report = await self._get_daily_report(report_ref=report_ref)
 
-        for project_id, project_name, services_status in projects_status:
-            project = daily_report.projects.get(project_id)
-            if project is None:
+        for project_id, services_status in projects_status:
+            project_services = daily_report.projects.get(project_id)
+            if project_services is None:
                 self._insert_project_report(
                     daily_report=daily_report,
                     project_id=project_id,
-                    project_name=project_name,
                     services_status=services_status,
                 )
             else:
                 self._update_project_report(
-                    project_services=project.services,
+                    project_services=project_services,
                     services_status=services_status,
                 )
 
@@ -341,7 +341,7 @@ class DailyProjectsReportUpdater:
         self,
         snapshotter: ProjectsStateSnapshotter,
         http_client: AsyncClient,
-    ) -> list[tuple[str, str, dict[str, ServiceStatus]]]:
+    ) -> list[tuple[str, dict[str, ServiceStatus]]]:
         async with asyncio.TaskGroup() as task_group:
             task1 = task_group.create_task(
                 snapshotter.capture_olympiad_preparation(http_client=http_client)
@@ -356,11 +356,11 @@ class DailyProjectsReportUpdater:
                 snapshotter.capture_swift_tracker(http_client=http_client)
             )
 
-        projects_status: list[tuple[str, str, dict[str, ServiceStatus]]] = [
-            ("olympiad-preparation", "Olympiad Preparation", task1.result()),
-            ("classic-word-game", "Classic word game", task2.result()),
-            ("mrdsx-observer", "mrdsx observer", task3.result()),
-            ("swift-tracker", "Swift Tracker", task4.result()),
+        projects_status: list[tuple[str, dict[str, ServiceStatus]]] = [
+            ("olympiad-preparation", task1.result()),
+            ("classic-word-game", task2.result()),
+            ("mrdsx-observer", task3.result()),
+            ("swift-tracker", task4.result()),
         ]
 
         return projects_status
@@ -385,7 +385,6 @@ class DailyProjectsReportUpdater:
         self,
         daily_report: DailyProjectsReport,
         project_id: str,
-        project_name: str,
         services_status: dict[str, ServiceStatus],
     ) -> None:
         services_reports: dict[str, ProjectServiceReport] = {}
@@ -397,10 +396,7 @@ class DailyProjectsReportUpdater:
                 service_status=service_status,
             )
 
-            daily_report.projects[project_id] = ProjectReport(
-                name=project_name,
-                services=services_reports,
-            )
+            daily_report.projects[project_id] = services_reports
 
     def _update_project_report(
         self,

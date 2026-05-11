@@ -29,6 +29,7 @@ class ProjectsReportsRepository:
             report_dict = report.to_dict()
             if report_dict is not None:
                 result.append(report_dict)
+
         return result
 
     async def delete_old_reports(
