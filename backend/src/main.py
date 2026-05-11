@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from typing import Any
 
 import httpx
@@ -10,20 +9,16 @@ from src.api import api_router
 from src.api.dependencies import (
     get_firestore,
     get_projects_reports_repository,
-    get_projects_reports_service,
-    get_redis,
 )
 from src.core.constants import (
-    CACHE_TTL_SECONDS,
     LOGGING_INTERVAL_MINUTES,
-    REPORTS_RETENTION_WINDOW_DAYS,
-    RedisKeys,
 )
 from src.core.settings import get_settings
 from src.services.projects_reports import (
     DailyProjectsReportUpdater,
     ProjectsStateSnapshotter,
 )
+from src.utils.projects_reports import projects_reports_range
 
 from .lifespan import lifespan
 
@@ -58,9 +53,7 @@ async def report_projects_status() -> None:
     snapshotter = ProjectsStateSnapshotter()
     daily_report_updater = DailyProjectsReportUpdater()
     projects_reports_repository = get_projects_reports_repository()
-    projects_reports_service = get_projects_reports_service()
     db = get_firestore()
-    redis = get_redis()
 
     async with httpx.AsyncClient() as http_client:
         await daily_report_updater.update_daily_report(
@@ -69,15 +62,8 @@ async def report_projects_status() -> None:
             db=db,
         )
 
-    projects_reports = await projects_reports_service.get_projects_reports(
-        projects_reports_repository=projects_reports_repository,
-        db=db,
-    )
-    await redis.set(
-        name=RedisKeys.PROJECTS_REPORTS,
-        value=projects_reports.model_dump_json(),
-        ex=CACHE_TTL_SECONDS,
-    )
+    start_date, end_date = projects_reports_range()
+    await projects_reports_repository.fetch_reports(start_date, end_date, db)
 
 
 # every day at midnight
@@ -86,7 +72,7 @@ async def delete_old_reports() -> None:
     reports_repository = get_projects_reports_repository()
     db = get_firestore()
 
-    cutoff_date = datetime.now() - timedelta(days=REPORTS_RETENTION_WINDOW_DAYS)
+    cutoff_date, _ = projects_reports_range()
     await reports_repository.delete_old_reports(
         cutoff_date=cutoff_date,
         db=db,

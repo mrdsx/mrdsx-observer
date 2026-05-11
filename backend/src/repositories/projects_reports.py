@@ -3,11 +3,18 @@ from typing import Any
 
 from google.cloud.firestore_v1 import And, FieldFilter
 
-from src.core.constants import FirestoreKeys
+from src.core.constants import CACHE_TTL_SECONDS, FirestoreKeys, RedisKeys
 from src.core.firebase.types import AsyncFirestore
+from src.schemas.projects_reports import DailyProjectsReport
+from src.utils.decorators import redis_cache
 
 
 class ProjectsReportsRepository:
+    @redis_cache(
+        key=RedisKeys.PROJECTS_REPORTS,
+        ttl=CACHE_TTL_SECONDS,
+        validation_model=list[DailyProjectsReport],
+    )
     async def fetch_reports(
         self,
         start_date: datetime,

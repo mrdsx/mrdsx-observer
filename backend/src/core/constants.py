@@ -12,10 +12,6 @@ class FirestoreKeys:
 class RedisKeys:
     PROJECTS_REPORTS = "projects_reports"
 
-    @staticmethod
-    def PROJECT_REPORTS(project_slug: str) -> str:
-        return f"{RedisKeys.PROJECTS_REPORTS}:{project_slug}"
-
 
 project_names = {
     "classic-word-game": "Classic word game",
