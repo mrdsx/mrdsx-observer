@@ -12,20 +12,6 @@ class DailyProjectsReport(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-# TODO: remove after migration is completed
-class DailyProjectsReport_deprecated(BaseModel):
-    created_at: DatetimeWithNanoseconds
-    projects: dict[str, ProjectReport_deprecated]
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
-# TODO: remove after migration is completed
-class ProjectReport_deprecated(BaseModel):
-    name: str
-    services: dict[str, ProjectServiceReport]
-
-
 class ProjectServiceReport(BaseModel):
     current_status: ServiceStatus
     operational: NonNegativeInt
