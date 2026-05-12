@@ -2,7 +2,7 @@ import type { DailyReport } from "@/lib/schemas";
 import { mapReports } from "../lib/utils";
 import { ProjectReportItem } from "./ProjectReportItem";
 
-export function ProjectReports({
+export function DailyReports({
   dailyReports,
 }: {
   dailyReports: DailyReport[];

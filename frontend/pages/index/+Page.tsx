@@ -1,7 +1,9 @@
+import { ExternalLink } from "lucide-react";
 import { useData } from "vike-react/useData";
+import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
-import { ProjectReports } from "@/components/ProjectReports";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { STATUS_CODES } from "@/lib/constants";
 import type { Data } from "./+data";
@@ -24,7 +26,18 @@ export default function HomePage() {
         .map((project) => (
           <Card className="max-w-125" key={project.id}>
             <CardHeader className="border-b">
-              <CardTitle>{project.name}</CardTitle>
+              <CardTitle className="flex items-end gap-2">
+                {project.name}
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  render={
+                    <a href={`/${project.id}`}>
+                      <ExternalLink />
+                    </a>
+                  }
+                />
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="mb-4 flex flex-wrap justify-between gap-2">
@@ -32,7 +45,7 @@ export default function HomePage() {
                 <span className="text-[16px]">Uptime: {project.uptime}%</span>
               </div>
 
-              <ProjectReports dailyReports={project.dailyReports} />
+              <DailyReports dailyReports={project.dailyReports} />
             </CardContent>
           </Card>
         ))}
