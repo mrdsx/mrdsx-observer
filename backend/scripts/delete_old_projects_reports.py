@@ -14,9 +14,10 @@ async def delete_old_projects_reports() -> None:
     db = get_firestore()
     projects_reports_repository = get_projects_reports_repository()
 
-    cutoff_date = datetime.now() - timedelta(days=REPORTS_RETENTION_WINDOW_DAYS - 1)
-    normalized_date = cutoff_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    await projects_reports_repository.delete_old_reports(normalized_date, db)
+    cutoff_date = (
+        datetime.now() - timedelta(days=REPORTS_RETENTION_WINDOW_DAYS - 1)
+    ).replace(hour=0, minute=0, second=0, microsecond=0)
+    await projects_reports_repository.delete_old_reports(cutoff_date=cutoff_date, db=db)
 
     print("Successfully deleted old projects reports.")
 
