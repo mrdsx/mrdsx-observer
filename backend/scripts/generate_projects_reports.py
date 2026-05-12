@@ -1,11 +1,8 @@
 import asyncio
 import random
-import sys
 from datetime import timedelta
 
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
-
-sys.path.append("./")
 
 from src.api.dependencies import get_firestore
 from src.core.constants import FirestoreKeys

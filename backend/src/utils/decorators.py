@@ -3,13 +3,10 @@ import json
 from typing import Any
 
 from pydantic import TypeAdapter, ValidationError
-from redis.asyncio import Redis
 
-from src.core.settings import get_settings
+from src.api.dependencies.redis import get_redis
 
-settings = get_settings()
-
-redis = Redis(**settings.redis_settings)
+redis = get_redis()
 
 
 def redis_cache(key: str, ttl: int, validation_model: Any):
