@@ -5,7 +5,8 @@ from datetime import timedelta
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 
 from src.api.dependencies import get_firestore
-from src.core.constants import FirestoreKeys
+from src.api.dependencies.redis import get_redis
+from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS, FirestoreKeys, RedisKeys
 from src.core.firebase import initialize_firebase
 from src.core.types import ServiceStatus
 from src.schemas.projects_reports import (
@@ -14,7 +15,7 @@ from src.schemas.projects_reports import (
 )
 from src.utils.datetime import isodate
 
-TIME_WINDOW_DAYS = 40
+TIME_WINDOW_DAYS = REPORTS_RETENTION_WINDOW_DAYS
 
 
 def get_random_status() -> ServiceStatus:
@@ -29,6 +30,7 @@ def get_random_status() -> ServiceStatus:
 async def generate_projects_reports() -> None:
     initialize_firebase()
     db = get_firestore()
+    redis = get_redis()
 
     projects = [
         ("classic-word-game", ["API", "Site"]),
@@ -58,6 +60,9 @@ async def generate_projects_reports() -> None:
         await doc_ref.set(daily_report.model_dump())
 
         print(f"Created report with doc_id: {doc_id}")
+
+    await redis.delete(RedisKeys.PROJECTS_REPORTS)
+    print(f"Invalidated cache for {RedisKeys.PROJECTS_REPORTS}")
 
 
 asyncio.run(generate_projects_reports())
