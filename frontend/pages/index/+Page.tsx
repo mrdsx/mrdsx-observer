@@ -26,7 +26,7 @@ export default function HomePage() {
         .map((project) => (
           <Card className="max-w-125" key={project.id}>
             <CardHeader className="border-b">
-              <CardTitle className="flex items-end gap-2">
+              <CardTitle className="flex items-center gap-2">
                 {project.name}
                 <Button
                   size="icon-sm"
