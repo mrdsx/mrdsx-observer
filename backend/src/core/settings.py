@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: Literal["prod", "dev"] = "dev"
-    proxy_url: str = "http://127.0.0.1"
 
     redis_host: str = "127.0.0.1"
     redis_port: int = 6379
@@ -22,6 +21,12 @@ class Settings(BaseSettings):
             "password": self.redis_password,
             "decode_responses": True,
         }
+
+    @property
+    def proxy_url(self) -> str | None:
+        if self.app_env == "dev":
+            return "http://127.0.0.1"
+        return None
 
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
