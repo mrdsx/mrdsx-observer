@@ -8,8 +8,6 @@ class Settings(BaseSettings):
     app_env: Literal["prod", "dev"] = "dev"
     proxy_url: str = "http://127.0.0.1"
 
-    firebase_private_key: str
-
     redis_host: str = "127.0.0.1"
     redis_port: int = 6379
     redis_username: str | None = None
@@ -25,7 +23,7 @@ class Settings(BaseSettings):
             "decode_responses": True,
         }
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
 @lru_cache

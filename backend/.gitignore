@@ -1,6 +1,7 @@
 .venv
 .env
 cron_state*
+service_account.json
 
 __pycache__
 .ruff_cache
