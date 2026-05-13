@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: Literal["prod", "dev"] = "dev"
+    proxy_url: str = "http://127.0.0.1"
 
     firebase_private_key: str
 

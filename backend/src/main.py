@@ -58,7 +58,7 @@ async def report_projects_status() -> None:
     daily_report_updater = DailyProjectsReportUpdater()
     projects_reports_repository = get_projects_reports_repository()
 
-    async with httpx.AsyncClient() as http_client:
+    async with httpx.AsyncClient(proxy=settings.proxy_url) as http_client:
         await daily_report_updater.update_daily_report(
             snapshotter=snapshotter,
             http_client=http_client,
