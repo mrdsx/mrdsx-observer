@@ -10,10 +10,8 @@ from src.api.dependencies import (
     get_firestore,
     get_projects_reports_repository,
 )
-from src.api.dependencies.redis import get_redis
 from src.core.constants import (
     LOGGING_INTERVAL_MINUTES,
-    RedisKeys,
 )
 from src.core.settings import get_settings
 from src.services.projects_reports import (
@@ -53,7 +51,6 @@ crons = Crons(app)
 @crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *")
 async def report_projects_status() -> None:
     db = get_firestore()
-    redis = get_redis()
     snapshotter = ProjectsStateSnapshotter()
     daily_report_updater = DailyProjectsReportUpdater()
     projects_reports_repository = get_projects_reports_repository()
@@ -65,9 +62,13 @@ async def report_projects_status() -> None:
             db=db,
         )
 
-    await redis.delete(RedisKeys.PROJECTS_REPORTS)
     start_date, end_date = projects_reports_range()
-    await projects_reports_repository.fetch_reports(start_date, end_date, db)
+    await projects_reports_repository.fetch_reports(
+        start_date=start_date,
+        end_date=end_date,
+        db=db,
+        force_refresh=True,  # pyright: ignore[reportCallIssue]
+    )
 
 
 # every day at midnight

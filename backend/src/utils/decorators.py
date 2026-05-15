@@ -10,20 +10,26 @@ redis = get_redis()
 
 
 def redis_cache(key: str, ttl: int, validation_model: Any):
-    def wrapper(func):
+    def decorator(func):
         @functools.wraps(func)
-        async def decorator(self, *args, **kwargs):
+        async def wrapper(
+            self,
+            force_refresh: bool = False,
+            *args,
+            **kwargs,
+        ):
             type_adapter = TypeAdapter(validation_model)
 
-            try:
-                cached_data = await redis.get(name=key)
-                if cached_data is not None:
-                    cached_data = json.loads(cached_data)
-                    type_adapter.validate_python(cached_data)
+            if not force_refresh:
+                try:
+                    cached_data = await redis.get(name=key)
+                    if cached_data is not None:
+                        cached_data = json.loads(cached_data)
+                        type_adapter.validate_python(cached_data)
 
-                    return cached_data
-            except (ValidationError, json.JSONDecodeError) as e:
-                print(e)
+                        return cached_data
+                except (ValidationError, json.JSONDecodeError) as e:
+                    print(e)
 
             result = await func(self, *args, **kwargs)
             type_adapter.validate_python(result)
@@ -36,6 +42,6 @@ def redis_cache(key: str, ttl: int, validation_model: Any):
 
             return result
 
-        return decorator
+        return wrapper
 
-    return wrapper
+    return decorator
