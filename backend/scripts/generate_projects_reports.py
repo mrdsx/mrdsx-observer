@@ -34,7 +34,6 @@ async def generate_projects_reports() -> None:
 
     projects = [
         ("classic-word-game", ["API", "Site"]),
-        ("mrdsx-observer", ["Site"]),
         ("olympiad-preparation", ["API", "Site", "Static Assets"]),
         ("swift-tracker", ["Site"]),
     ]

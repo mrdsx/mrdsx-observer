@@ -15,7 +15,6 @@ class RedisKeys:
 
 project_names = {
     "classic-word-game": "Classic word game",
-    "mrdsx-observer": "mrdsx observer",
     "olympiad-preparation": "Olympiad Preparation",
     "swift-tracker": "Swift Tracker",
 }
