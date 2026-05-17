@@ -22,4 +22,5 @@ async def delete_old_projects_reports() -> None:
     print("Successfully deleted old projects reports.")
 
 
-asyncio.run(delete_old_projects_reports())
+if __name__ == "__main__":
+    asyncio.run(delete_old_projects_reports())

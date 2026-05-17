@@ -65,4 +65,5 @@ async def generate_projects_reports() -> None:
     print(f"Invalidated cache for {RedisKeys.PROJECTS_REPORTS}")
 
 
-asyncio.run(generate_projects_reports())
+if __name__ == "__main__":
+    asyncio.run(generate_projects_reports())
