@@ -11,13 +11,13 @@ from src.core.models.services_reports import (
 )
 from src.core.types import ServiceStatus
 from src.repositories.projects_reports import ProjectsReportsRepository
-from src.schemas.projects_reports_v2 import DailyProjectReport
+from src.schemas.projects_reports import DailyProjectReport
 from src.schemas.services_reports import ServicesReportsOut
 from src.utils.datetime import isodate
 from src.utils.math import truncate
 from src.utils.projects_reports import (
     projects_reports_range,
-    validate_daily_reports_v2,
+    validate_daily_reports,
 )
 
 
@@ -33,7 +33,7 @@ class ServicesReportsService:
             start_date=start_date, end_date=end_date, session=session
         )
 
-        daily_reports = validate_daily_reports_v2(reports=raw_reports)
+        daily_reports = validate_daily_reports(raw_reports)
         normalized_reports = self._normalize_services_reports(
             project_slug=project_slug,
             daily_reports=daily_reports,

@@ -14,15 +14,15 @@ from src.core.models.projects_reports import (
 from src.core.types import ServiceStatus
 from src.repositories.projects_reports import ProjectsReportsRepository
 from src.schemas.projects_reports import (
+    DailyProjectReport,
     ProjectServiceReport,
     ProjectsReportsOut,
 )
-from src.schemas.projects_reports_v2 import DailyProjectReport
 from src.utils.datetime import isodate
 from src.utils.math import truncate
 from src.utils.projects_reports import (
     projects_reports_range,
-    validate_daily_reports_v2,
+    validate_daily_reports,
     worst_status,
 )
 from src.utils.requests import send_request
@@ -120,7 +120,7 @@ class ProjectsReportsService:
             session=session,
         )
 
-        daily_reports = validate_daily_reports_v2(reports=raw_reports)
+        daily_reports = validate_daily_reports(raw_reports)
         normalized_reports, latest_projects_status = self._normalize_projects_reports(
             daily_reports=daily_reports
         )
@@ -308,7 +308,7 @@ class DailyProjectReportsUpdater:
             current_date=current_date,
             session=session,
         )
-        daily_reports = validate_daily_reports_v2(reports=raw_reports)
+        daily_reports = validate_daily_reports(raw_reports)
 
         for project_id, services_status in projects_status:
             services_reports: dict[str, ProjectServiceReport] | None = None

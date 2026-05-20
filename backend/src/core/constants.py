@@ -5,8 +5,7 @@ LOGGING_INTERVAL_MINUTES = 5
 CACHE_TTL_SECONDS = 60 * (LOGGING_INTERVAL_MINUTES + 1)
 
 
-class FirestoreKeys:
-    PROJECTS_REPORTS = "projects_reports"
+# TODO: check if PostgresKeys has to be added
 
 
 class RedisKeys:

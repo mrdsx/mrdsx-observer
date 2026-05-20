@@ -6,8 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
 from src.models.projects_reports import DB_DailyProjectReport
-from src.schemas.projects_reports import ProjectServiceReport
-from src.schemas.projects_reports_v2 import DailyProjectReport
+from src.schemas.projects_reports import DailyProjectReport, ProjectServiceReport
 from src.utils.datetime import isodate
 from src.utils.db import serialize_rows
 from src.utils.decorators import redis_cache

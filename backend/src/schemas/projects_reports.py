@@ -1,27 +1,17 @@
-from typing import Any
-from warnings import deprecated
+from datetime import datetime
 
-from google.api_core.datetime_helpers import DatetimeWithNanoseconds
-from pydantic import BaseModel, ConfigDict, NonNegativeInt, field_validator
+from pydantic import BaseModel, NonNegativeInt
 
 from src.core.types import ServiceStatus
 from src.schemas.api import api_model_config, uptime_field
 
 
-# TODO: remove after migration to postgres
-@deprecated("Use DailyProjectReport (not DailyProject(s)Report)")
-class DailyProjectsReport(BaseModel):
-    created_at: DatetimeWithNanoseconds
-    projects: dict[str, dict[str, ProjectServiceReport]]
-
-    @field_validator("created_at", mode="before")
-    @classmethod
-    def normalize_date(cls, date: Any) -> Any:
-        if isinstance(date, str):
-            return DatetimeWithNanoseconds.fromisoformat(date)
-        return date
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class DailyProjectReport(BaseModel):
+    id: int
+    date_str: str
+    created_at: datetime
+    project_id: str
+    services_reports: dict[str, ProjectServiceReport]
 
 
 class ProjectServiceReport(BaseModel):
