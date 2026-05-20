@@ -8,19 +8,41 @@ A dashboard for monitoring my projects status.
 
 ### Development
 
-Copy `.env.dev` to `.env` and update the values as needed. Also make sure to obtain `service_account.json` file and paste it to the src directory.
+Copy `.env.dev` to `.env` and fill in blank variables if needed for each directory:
+
+- ./frontend
+- ./backend
+- ./webhooks/github
 
 ```sh
 bun dev                                 # Start frontend
 uv run uvicorn src.main:app --reload    # Start backend
-docker compose -f compose.dev.yaml up   # Start local Firebase and Redis
+docker compose -f compose.dev.yaml up   # Start local PostgreSQL and Redis
 ```
 
 ### Production
+
+Copy `.env.prod` to `.env` and fill in blank variables if needed for each directory:
+
+- ./frontend
+- ./backend
+- ./webhooks/github
+
+Also, copy `.env.postgres.example` to `.env.postgres` in project root.
+
+**Important note!**
+
+Environment variables from `./.env.postgres` must be identical to variables from `./backend/.env` like so:
+
+| `.env.postgres`     | `.env`        |
+| ------------------- | ------------- |
+| `POSTGRES_USER`     | `DB_USER`     |
+| `POSTGRES_PASSWORD` | `DB_PASSWORD` |
+| `POSTGRES_DB`       | `DB_NAME`     |
 
 ```sh
 cd scripts
 . ./start.prod.sh   # Run standalone script that'll start all necessary services
 ```
 
-Production uses Docker for running frontend, backend and Redis because they're self-hosted. Firebase is deployed to cloud and thus doesn't need start up command.
+Production uses Docker for running self-hosted frontend, backend, PostgreSQL and Redis.
