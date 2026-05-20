@@ -1,14 +1,14 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import (
-    get_firestore,
     get_projects_reports_repository,
     get_projects_reports_service,
     get_services_reports_service,
 )
-from src.core.firebase.types import AsyncFirestore
+from src.api.dependencies.session import get_session
 from src.repositories.projects_reports import ProjectsReportsRepository
 from src.schemas.projects_reports import ProjectsReportsOut
 from src.schemas.services_reports import ServicesReportsOut
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/projects")
 
 @router.get("/")
 async def get_projects_reports(
-    db: Annotated[AsyncFirestore, Depends(get_firestore)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     projects_reports_service: Annotated[
         ProjectsReportsService,
         Depends(get_projects_reports_service),
@@ -30,18 +30,16 @@ async def get_projects_reports(
         Depends(get_projects_reports_repository),
     ],
 ) -> ProjectsReportsOut:
-    projects_reports = await projects_reports_service.get_projects_reports(
+    return await projects_reports_service.get_projects_reports(
         projects_reports_repository=projects_reports_repository,
-        db=db,
+        session=session,
     )
-
-    return projects_reports
 
 
 @router.get("/{project_slug}")
 async def get_project_services_reports(
     project_slug: str,
-    db: Annotated[AsyncFirestore, Depends(get_firestore)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     projects_reports_repository: Annotated[
         ProjectsReportsRepository,
         Depends(get_projects_reports_repository),
@@ -51,10 +49,8 @@ async def get_project_services_reports(
         Depends(get_services_reports_service),
     ],
 ) -> ServicesReportsOut:
-    services_reports = await services_reports_service.get_services_reports(
+    return await services_reports_service.get_services_reports(
         project_slug=project_slug,
         projects_reports_repository=projects_reports_repository,
-        db=db,
+        session=session,
     )
-
-    return services_reports

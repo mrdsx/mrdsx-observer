@@ -1,19 +1,17 @@
 import asyncio
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from google.api_core.datetime_helpers import DatetimeWithNanoseconds
+from sqlalchemy import delete
 
-from src.api.dependencies import get_firestore
+from src.api.dependencies import get_projects_reports_repository
 from src.api.dependencies.redis import get_redis
-from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS, FirestoreKeys, RedisKeys
-from src.core.firebase import initialize_firebase
+from src.api.dependencies.session import get_session
+from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS, RedisKeys
 from src.core.types import ServiceStatus
-from src.schemas.projects_reports import (
-    DailyProjectsReport,
-    ProjectServiceReport,
-)
-from src.utils.datetime import isodate
+from src.models.projects_reports import DB_DailyProjectReport
+from src.schemas.projects_reports import ProjectServiceReport
+from src.utils.datetime import isodate, midnight
 
 TIME_WINDOW_DAYS = REPORTS_RETENTION_WINDOW_DAYS
 
@@ -28,9 +26,8 @@ def get_random_status() -> ServiceStatus:
 
 
 async def generate_projects_reports() -> None:
-    initialize_firebase()
-    db = get_firestore()
     redis = get_redis()
+    projects_reports_repository = get_projects_reports_repository()
 
     projects = [
         ("classic-word-game", ["API", "Site"]),
@@ -38,30 +35,39 @@ async def generate_projects_reports() -> None:
         ("swift-tracker", ["Site"]),
     ]
 
-    for days_offset in range(TIME_WINDOW_DAYS):
-        current_date = DatetimeWithNanoseconds.now() - timedelta(days=days_offset)
-        doc_id = isodate(current_date)
-        doc_ref = db.collection(FirestoreKeys.PROJECTS_REPORTS).document(doc_id)
-        daily_report = DailyProjectsReport(created_at=current_date, projects={})
+    async for session in get_session():
+        await session.execute(delete(DB_DailyProjectReport))
 
-        for project_id, services in projects:
-            project_report = {}
-            for service in services:
-                service_status = get_random_status()
-                project_report[service] = ProjectServiceReport(
-                    current_status=service_status,
-                    operational=1 if service_status == "operational" else 0,
-                    degraded=1 if service_status == "degraded" else 0,
-                    outages=1 if service_status == "outage" else 0,
+        # range [0, 29]
+        for days_offset in range(TIME_WINDOW_DAYS):
+            current_date = midnight(datetime.now() - timedelta(days=days_offset))
+            date_str = isodate(current_date)
+
+            for project_id, services in projects:
+                services_reports: dict[str, ProjectServiceReport] = {}
+
+                for service in services:
+                    status = get_random_status()
+                    services_reports[service] = ProjectServiceReport(
+                        current_status=status,
+                        operational=1 if status == "operational" else 0,
+                        degraded=1 if status == "degraded" else 0,
+                        outages=1 if status == "outage" else 0,
+                    )
+
+                projects_reports_repository.add_report(
+                    project_id=project_id,
+                    current_date=current_date,
+                    services_reports=services_reports,
+                    session=session,
                 )
-            daily_report.projects[project_id] = project_report
 
-        await doc_ref.set(daily_report.model_dump())
+            print(f"Created report with {date_str=}")
 
-        print(f"Created report with doc_id: {doc_id}")
+        await session.commit()
 
     await redis.delete(RedisKeys.PROJECTS_REPORTS)
-    print(f"Invalidated cache for {RedisKeys.PROJECTS_REPORTS}")
+    print(f"Cleared cache for {RedisKeys.PROJECTS_REPORTS}")
 
 
 if __name__ == "__main__":

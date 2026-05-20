@@ -1,12 +1,14 @@
 services:
-  firebase:
-    build: firebase
+  postgres:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
     ports:
-      - "4000:4000"
-      - "8080:8080"
+      - "5432:5432"
 
   redis:
+    image: redis:8.6.3-alpine
     ports:
       - "6379:6379"
-    image: redis:8.6.3-alpine
-    restart: always

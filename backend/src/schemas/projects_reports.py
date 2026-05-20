@@ -1,4 +1,5 @@
 from typing import Any
+from warnings import deprecated
 
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from pydantic import BaseModel, ConfigDict, NonNegativeInt, field_validator
@@ -7,6 +8,8 @@ from src.core.types import ServiceStatus
 from src.schemas.api import api_model_config, uptime_field
 
 
+# TODO: remove after migration to postgres
+@deprecated("Use DailyProjectReport (not DailyProject(s)Report)")
 class DailyProjectsReport(BaseModel):
     created_at: DatetimeWithNanoseconds
     projects: dict[str, dict[str, ProjectServiceReport]]

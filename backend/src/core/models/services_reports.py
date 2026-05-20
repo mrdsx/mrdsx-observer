@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-
-from google.api_core.datetime_helpers import DatetimeWithNanoseconds
+from datetime import datetime
 
 from src.core.types import ServiceStatus
 
@@ -20,7 +19,7 @@ class ServiceReportsDTO:
 
 @dataclass(slots=True)
 class LatestServiceStatusDTO:
-    created_at: DatetimeWithNanoseconds
+    created_at: datetime
     current_status: ServiceStatus
     good_statuses: int
     total_statuses: int

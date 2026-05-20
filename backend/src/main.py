@@ -7,15 +7,13 @@ from fastapi_crons import Crons
 
 from src.api import api_router
 from src.api.dependencies import (
-    get_firestore,
     get_projects_reports_repository,
 )
-from src.core.constants import (
-    LOGGING_INTERVAL_MINUTES,
-)
+from src.api.dependencies.session import get_session
+from src.core.constants import LOGGING_INTERVAL_MINUTES
 from src.core.settings import get_settings
 from src.services.projects_reports import (
-    DailyProjectsReportUpdater,
+    DailyProjectReportsUpdater,
     ProjectsStateSnapshotter,
 )
 from src.utils.projects_reports import projects_reports_range
@@ -50,35 +48,36 @@ crons = Crons(app)
 # every X minutes
 @crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *")
 async def report_projects_status() -> None:
-    db = get_firestore()
     snapshotter = ProjectsStateSnapshotter()
-    daily_report_updater = DailyProjectsReportUpdater()
+    daily_report_updater = DailyProjectReportsUpdater()
     projects_reports_repository = get_projects_reports_repository()
 
-    async with httpx.AsyncClient(proxy=settings.proxy_url) as http_client:
-        await daily_report_updater.update_daily_report(
-            snapshotter=snapshotter,
-            http_client=http_client,
-            db=db,
-        )
+    async for session in get_session():
+        async with httpx.AsyncClient(proxy=settings.proxy_url) as http_client:
+            await daily_report_updater.update_daily_reports(
+                projects_reports_repository=projects_reports_repository,
+                snapshotter=snapshotter,
+                http_client=http_client,
+                session=session,
+            )
 
-    start_date, end_date = projects_reports_range()
-    await projects_reports_repository.fetch_reports(
-        start_date=start_date,
-        end_date=end_date,
-        db=db,
-        force_refresh=True,  # pyright: ignore[reportCallIssue]
-    )
+        start_date, end_date = projects_reports_range()
+        await projects_reports_repository.fetch_reports_for_period(
+            start_date=start_date,
+            end_date=end_date,
+            session=session,
+            force_refresh=True,  # pyright: ignore[reportCallIssue]
+        )
 
 
 # every day at midnight
 @crons.cron("0 0 * * *")
 async def delete_old_reports() -> None:
-    db = get_firestore()
     reports_repository = get_projects_reports_repository()
 
     cutoff_date, _ = projects_reports_range()
-    await reports_repository.delete_old_reports(
-        cutoff_date=cutoff_date,
-        db=db,
-    )
+    async for session in get_session():
+        await reports_repository.delete_old_reports(
+            cutoff_date=cutoff_date,
+            session=session,
+        )

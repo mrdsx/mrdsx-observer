@@ -2,11 +2,10 @@ import asyncio
 from datetime import datetime
 from typing import Any
 
-from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.constants import FirestoreKeys, project_names
-from src.core.firebase.types import AsyncDocumentReference, AsyncFirestore
+from src.core.constants import project_names
 from src.core.models.projects_reports import (
     DailyProjectReportDTO,
     ProjectReportDTO,
@@ -15,15 +14,15 @@ from src.core.models.projects_reports import (
 from src.core.types import ServiceStatus
 from src.repositories.projects_reports import ProjectsReportsRepository
 from src.schemas.projects_reports import (
-    DailyProjectsReport,
     ProjectServiceReport,
     ProjectsReportsOut,
 )
+from src.schemas.projects_reports_v2 import DailyProjectReport
 from src.utils.datetime import isodate
 from src.utils.math import truncate
 from src.utils.projects_reports import (
     projects_reports_range,
-    validate_projects_reports,
+    validate_daily_reports_v2,
     worst_status,
 )
 from src.utils.requests import send_request
@@ -112,14 +111,16 @@ class ProjectsReportsService:
     async def get_projects_reports(
         self,
         projects_reports_repository: ProjectsReportsRepository,
-        db: AsyncFirestore,
+        session: AsyncSession,
     ) -> ProjectsReportsOut:
         start_date, end_date = projects_reports_range()
-        raw_reports = await projects_reports_repository.fetch_reports(
-            start_date=start_date, end_date=end_date, db=db
+        raw_reports = await projects_reports_repository.fetch_reports_for_period(
+            start_date=start_date,
+            end_date=end_date,
+            session=session,
         )
 
-        daily_reports = validate_projects_reports(reports=raw_reports)
+        daily_reports = validate_daily_reports_v2(reports=raw_reports)
         normalized_reports, latest_projects_status = self._normalize_projects_reports(
             daily_reports=daily_reports
         )
@@ -138,37 +139,37 @@ class ProjectsReportsService:
 
     def _normalize_projects_reports(
         self,
-        daily_reports: list[DailyProjectsReport],
+        daily_reports: list[DailyProjectReport],
     ) -> tuple[dict[str, ProjectReportDTO], dict[str, Any]]:
         projects_reports: dict[str, ProjectReportDTO] = {}
         latest_projects_status: dict[str, Any] = {}
 
         for daily_report in daily_reports:
-            for project_id, project_report in daily_report.projects.items():
-                existing_project_reports = projects_reports.get(project_id)
-                if existing_project_reports is None:
-                    projects_reports[project_id] = ProjectReportDTO(
-                        name=project_names.get(project_id, project_id),
-                        daily_reports={},
-                    )
-
-                project = self._compute_project_status(project_report)
-
-                projects_reports[project_id].daily_reports[
-                    isodate(daily_report.created_at)
-                ] = DailyProjectReportDTO(
-                    worst_status=project.worst_status,
-                    uptime=truncate(project.uptime_percentage, 2),
+            project_id = daily_report.project_id
+            existing_project_reports = projects_reports.get(project_id)
+            if existing_project_reports is None:
+                projects_reports[project_id] = ProjectReportDTO(
+                    name=project_names.get(project_id, project_id),
+                    daily_reports={},
                 )
 
-                self._update_latest_project_status(
-                    latest_projects_status=latest_projects_status,
-                    created_at=daily_report.created_at,
-                    project_id=project_id,
-                    services_status=project.services_status,
-                    good_statuses=project.good_statuses,
-                    outages=project.outages,
-                )
+            status_data = self._compute_project_status(daily_report.services_reports)
+
+            projects_reports[project_id].daily_reports[
+                isodate(daily_report.created_at)
+            ] = DailyProjectReportDTO(
+                worst_status=status_data.worst_status,
+                uptime=truncate(status_data.uptime_percentage, 2),
+            )
+
+            self._update_latest_project_status(
+                latest_projects_status=latest_projects_status,
+                created_at=daily_report.created_at,
+                project_id=project_id,
+                services_status=status_data.services_status,
+                good_statuses=status_data.good_statuses,
+                outages=status_data.outages,
+            )
 
         return projects_reports, latest_projects_status
 
@@ -289,38 +290,51 @@ class ProjectsReportsService:
         return mapped_reports
 
 
-class DailyProjectsReportUpdater:
-    async def update_daily_report(
+class DailyProjectReportsUpdater:
+    async def update_daily_reports(
         self,
+        projects_reports_repository: ProjectsReportsRepository,
         snapshotter: ProjectsStateSnapshotter,
         http_client: AsyncClient,
-        db: AsyncFirestore,
+        session: AsyncSession,
     ) -> None:
         projects_status = await self._get_projects_status(
             snapshotter=snapshotter,
             http_client=http_client,
         )
 
-        report_ref = db.collection(FirestoreKeys.PROJECTS_REPORTS).document(
-            isodate(datetime.now())
+        current_date = datetime.now()
+        raw_reports = await projects_reports_repository.fetch_reports_by_day(
+            current_date=current_date,
+            session=session,
         )
-        daily_report = await self._get_daily_report(report_ref=report_ref)
+        daily_reports = validate_daily_reports_v2(reports=raw_reports)
 
         for project_id, services_status in projects_status:
-            project_services = daily_report.projects.get(project_id)
-            if project_services is None:
-                self._insert_project_report(
-                    daily_report=daily_report,
-                    project_id=project_id,
+            services_reports: dict[str, ProjectServiceReport] | None = None
+
+            for daily_report in daily_reports:
+                if daily_report.project_id == project_id:
+                    services_reports = daily_report.services_reports
+
+            if services_reports is None:
+                services_reports = self._derive_services_reports(
                     services_status=services_status,
                 )
             else:
                 self._update_project_report(
-                    project_services=project_services,
+                    services_reports=services_reports,
                     services_status=services_status,
                 )
 
-        await report_ref.set(daily_report.model_dump())
+            projects_reports_repository.add_report(
+                project_id=project_id,
+                current_date=current_date,
+                services_reports=services_reports,
+                session=session,
+            )
+
+        await session.commit()
 
     async def _get_projects_status(
         self,
@@ -346,28 +360,10 @@ class DailyProjectsReportUpdater:
 
         return projects_status
 
-    async def _get_daily_report(
+    def _derive_services_reports(
         self,
-        report_ref: AsyncDocumentReference,
-    ) -> DailyProjectsReport:
-        report_doc = await report_ref.get()
-        raw_report = report_doc.to_dict()
-        if raw_report is None:
-            raw_report = {
-                "created_at": DatetimeWithNanoseconds.now(),
-                "projects": {},
-            }
-
-        daily_report = DailyProjectsReport.model_validate(raw_report)
-
-        return daily_report
-
-    def _insert_project_report(
-        self,
-        daily_report: DailyProjectsReport,
-        project_id: str,
         services_status: dict[str, ServiceStatus],
-    ) -> None:
+    ) -> dict[str, ProjectServiceReport]:
         services_reports: dict[str, ProjectServiceReport] = {}
 
         for service_name, service_status in services_status.items():
@@ -377,15 +373,13 @@ class DailyProjectsReportUpdater:
                 service_status=service_status,
             )
 
-            daily_report.projects[project_id] = services_reports
+        return services_reports
 
     def _update_project_report(
         self,
-        project_services: dict[str, ProjectServiceReport],
+        services_reports: dict[str, ProjectServiceReport],
         services_status: dict[str, ServiceStatus],
     ) -> None:
-        services_reports: dict[str, ProjectServiceReport] = project_services
-
         for service_name, service_status in services_status.items():
             service_details = services_reports.get(service_name)
             if service_details is None:

@@ -3,8 +3,8 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 
-from src.core.firebase.client import initialize_firebase
 from src.core.settings import get_settings
+from src.models import dispose_db, initialize_db
 
 settings = get_settings()
 
@@ -13,9 +13,12 @@ settings = get_settings()
 async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
     if settings.app_env == "dev":
         print("Starting app with following settings:")
-        print(f"Environment - {settings.app_env}")
-        print(f"Redis host  - {settings.redis_host}")
-        print(f"Redis port  - {settings.redis_port}")
+        print(f"Environment   - {settings.app_env}")
+        print(f"Postgres host - {settings.db_host}")
+        print(f"Postgres port - {settings.db_port}")
+        print(f"Redis host    - {settings.redis_host}")
+        print(f"Redis port    - {settings.redis_port}")
 
-    initialize_firebase()
+    await initialize_db()
     yield
+    await dispose_db()
