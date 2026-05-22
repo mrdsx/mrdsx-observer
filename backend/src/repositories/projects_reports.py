@@ -58,8 +58,8 @@ class ProjectsReportsRepository:
                 date_str=isodate(current_date),
                 created_at=current_date,
                 services_reports={
-                    service_id: service_report.model_dump()
-                    for service_id, service_report in services_reports.items()
+                    service_name: service_report.model_dump()
+                    for service_name, service_report in services_reports.items()
                 },
             )
         )

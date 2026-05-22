@@ -10,6 +10,8 @@ from src.models import Base
 class DB_DailyProjectReport(Base):
     __tablename__ = "projects_reports"
 
+    # TODO: remove 'id' column
+    # TODO: use 'project_id' and 'date_str' as primary keys
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     project_id: Mapped[str]
     date_str: Mapped[str]

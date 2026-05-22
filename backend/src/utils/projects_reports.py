@@ -20,6 +20,12 @@ def projects_reports_range(
     return (start_date, end_date)
 
 
+def validate_daily_reports(reports: Any) -> list[DailyProjectReport]:
+    adapter = TypeAdapter(list[DailyProjectReport])
+    daily_reports = adapter.validate_python(reports)
+    return daily_reports
+
+
 def worst_status(*statuses: ServiceStatus) -> ServiceStatus:
     for status in statuses:
         if status == "outage":
@@ -28,9 +34,3 @@ def worst_status(*statuses: ServiceStatus) -> ServiceStatus:
             return "degraded"
 
     return "operational"
-
-
-def validate_daily_reports(reports: Any) -> list[DailyProjectReport]:
-    adapter = TypeAdapter(list[DailyProjectReport])
-    daily_reports = adapter.validate_python(reports)
-    return daily_reports
