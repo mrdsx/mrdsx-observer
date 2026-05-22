@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from freezegun import freeze_time
 
 from src.utils.projects_reports import projects_reports_range, worst_status
@@ -6,20 +8,20 @@ from src.utils.projects_reports import projects_reports_range, worst_status
 @freeze_time("2027-01-01")
 def test_projects_reports_range():
     range = projects_reports_range(days=30)
-    assert range[0].year == 2026
-    assert range[0].month == 12
-    assert range[0].day == 3
-    assert range[1].year == 2027
-    assert range[1].month == 1
-    assert range[1].day == 1
+    assert range[0] == datetime(
+        year=2026, month=12, day=3, hour=0, minute=0, second=0, microsecond=0
+    )
+    assert range[1] == datetime(
+        year=2027, month=1, day=1, hour=23, minute=59, second=59, microsecond=999999
+    )
 
     range2 = projects_reports_range(days=90)
-    assert range2[0].year == 2026
-    assert range2[0].month == 10
-    assert range2[0].day == 4
-    assert range2[1].year == 2027
-    assert range2[1].month == 1
-    assert range2[1].day == 1
+    assert range2[0] == datetime(
+        year=2026, month=10, day=4, hour=0, minute=0, second=0, microsecond=0
+    )
+    assert range2[1] == datetime(
+        year=2027, month=1, day=1, hour=23, minute=59, second=59, microsecond=999999
+    )
 
 
 def test_worst_status():
