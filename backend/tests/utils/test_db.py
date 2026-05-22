@@ -1,43 +1,47 @@
-from sqlalchemy import Integer, create_engine, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from datetime import datetime
 
+import pytest
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.models.projects_reports import DB_DailyProjectReport
 from src.utils.db import serialize_rows
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-class DB_User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str]
-
-
-def test_serialize_rows():
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-
-    with Session(engine) as session:
-        session.add_all(
-            [
-                DB_User(name="Leonardo"),
-                DB_User(name="Donatello"),
-                DB_User(name="Michelangelo"),
-                DB_User(name="Raphael"),
-            ]
+@pytest.mark.asyncio
+async def test_serialize_rows(session: AsyncSession):
+    session.add(
+        DB_DailyProjectReport(
+            project_id="project1",
+            date_str="2027-01-01",
+            created_at=datetime(year=2027, month=1, day=1),
+            services_reports={
+                "service1": {
+                    "current_status": "operational",
+                    "operational": 1,
+                    "degraded": 0,
+                    "outages": 0,
+                }
+            },
         )
-        session.commit()
+    )
 
-        result = session.execute(select(DB_User))
-        serialized = serialize_rows(result)
+    result = await session.execute(select(DB_DailyProjectReport))
+    serialized = serialize_rows(result)
 
-        assert serialized == [
-            {"id": 1, "name": "Leonardo"},
-            {"id": 2, "name": "Donatello"},
-            {"id": 3, "name": "Michelangelo"},
-            {"id": 4, "name": "Raphael"},
-        ]
-
-    Base.metadata.drop_all(engine)
+    assert serialized == [
+        {
+            "id": 1,
+            "project_id": "project1",
+            "date_str": "2027-01-01",
+            "created_at": datetime(year=2027, month=1, day=1),
+            "services_reports": {
+                "service1": {
+                    "current_status": "operational",
+                    "operational": 1,
+                    "degraded": 0,
+                    "outages": 0,
+                }
+            },
+        }
+    ]

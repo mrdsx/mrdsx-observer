@@ -4,7 +4,10 @@ from src.utils.datetime import isodate, midnight
 
 
 def test_midnight():
-    dt = datetime(year=2026, month=1, day=1, hour=1, minute=1, second=1, microsecond=1)
+    dt = datetime(year=2027, month=1, day=1, hour=1, minute=1, second=1, microsecond=1)
+    assert midnight(dt).year == 2027
+    assert midnight(dt).month == 1
+    assert midnight(dt).day == 1
     assert midnight(dt).hour == 0
     assert midnight(dt).minute == 0
     assert midnight(dt).second == 0
