@@ -327,14 +327,12 @@ class DailyProjectReportsUpdater:
                     services_status=services_status,
                 )
 
-            projects_reports_repository.add_report(
+            await projects_reports_repository.update_report(
                 project_id=project_id,
                 current_date=current_date,
                 services_reports=services_reports,
                 session=session,
             )
-
-        await session.commit()
 
     async def _get_projects_status(
         self,

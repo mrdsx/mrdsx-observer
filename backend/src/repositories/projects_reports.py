@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
@@ -63,6 +63,28 @@ class ProjectsReportsRepository:
                 },
             )
         )
+
+    async def update_report(
+        self,
+        project_id: str,
+        current_date: datetime,
+        services_reports: dict[str, ProjectServiceReport],
+        session: AsyncSession,
+    ) -> None:
+        await session.execute(
+            update(DB_DailyProjectReport)
+            .where(
+                DB_DailyProjectReport.project_id == project_id,
+                DB_DailyProjectReport.date_str == isodate(current_date),
+            )
+            .values(
+                services_reports={
+                    service_name: service_report.model_dump()
+                    for service_name, service_report in services_reports.items()
+                }
+            )
+        )
+        await session.commit()
 
     async def delete_old_reports(
         self,
