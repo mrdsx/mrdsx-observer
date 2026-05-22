@@ -53,7 +53,7 @@ async def report_projects_status() -> None:
     projects_reports_repository = get_projects_reports_repository()
 
     async for session in get_session():
-        async with httpx.AsyncClient(proxy=settings.proxy_url) as http_client:
+        async with httpx.AsyncClient() as http_client:
             await daily_report_updater.update_daily_reports(
                 projects_reports_repository=projects_reports_repository,
                 snapshotter=snapshotter,

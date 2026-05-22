@@ -37,12 +37,6 @@ class Settings(BaseSettings):
             "decode_responses": True,
         }
 
-    @property
-    def proxy_url(self) -> str | None:
-        if self.app_env == "dev":
-            return "http://127.0.0.1"
-        return None
-
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
