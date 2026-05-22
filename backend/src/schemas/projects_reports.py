@@ -9,7 +9,6 @@ from src.utils.datetime import isodate
 
 
 class DailyProjectReport(BaseModel):
-    id: int
     date_str: str
     created_at: datetime
     project_id: str

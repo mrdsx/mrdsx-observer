@@ -31,7 +31,6 @@ async def test_serialize_rows(session: AsyncSession):
 
     assert serialized == [
         {
-            "id": 1,
             "project_id": "project1",
             "date_str": "2027-01-01",
             "created_at": datetime(year=2027, month=1, day=1),
