@@ -5,11 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.projects_reports import DB_DailyProjectReport
-from src.utils.db import serialize_rows
+from src.utils.db import deserialize_rows
 
 
 @pytest.mark.asyncio
-async def test_serialize_rows(session: AsyncSession):
+async def test_deserialize_rows(session: AsyncSession):
     session.add(
         DB_DailyProjectReport(
             project_id="project1",
@@ -27,7 +27,7 @@ async def test_serialize_rows(session: AsyncSession):
     )
 
     result = await session.execute(select(DB_DailyProjectReport))
-    serialized = serialize_rows(result)
+    serialized = deserialize_rows(result)
 
     assert serialized == [
         {

@@ -8,7 +8,7 @@ from src.core.constants import CACHE_TTL_SECONDS, RedisKeys
 from src.models.projects_reports import DB_DailyProjectReport
 from src.schemas.projects_reports import DailyProjectReport, ProjectServiceReport
 from src.utils.datetime import isodate
-from src.utils.db import serialize_rows
+from src.utils.db import deserialize_rows
 from src.utils.decorators import redis_cache
 
 
@@ -30,7 +30,7 @@ class ProjectsReportsRepository:
             )
         )
 
-        return serialize_rows(result)
+        return deserialize_rows(result)
 
     async def fetch_reports_by_day(
         self,
@@ -43,7 +43,7 @@ class ProjectsReportsRepository:
             )
         )
 
-        return serialize_rows(result)
+        return deserialize_rows(result)
 
     def add_report(
         self,
