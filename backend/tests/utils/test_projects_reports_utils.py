@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Any
 
-import pytest
 from freezegun import freeze_time
 
 from src.utils.projects_reports import (
@@ -9,52 +8,6 @@ from src.utils.projects_reports import (
     validate_daily_reports,
     worst_status,
 )
-
-
-# TODO: extract to shared fixture
-@pytest.fixture(scope="module")
-def raw_daily_reports() -> list[dict[str, Any]]:
-    return [
-        {
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "project_id": "project1",
-            "services_reports": {
-                "service": {
-                    "current_status": "operational",
-                    "operational": 1,
-                    "degraded": 0,
-                    "outages": 0,
-                }
-            },
-        },
-        {
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "project_id": "project2",
-            "services_reports": {
-                "service": {
-                    "current_status": "degraded",
-                    "operational": 0,
-                    "degraded": 1,
-                    "outages": 0,
-                }
-            },
-        },
-        {
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "project_id": "project3",
-            "services_reports": {
-                "service": {
-                    "current_status": "outage",
-                    "operational": 0,
-                    "degraded": 0,
-                    "outages": 1,
-                }
-            },
-        },
-    ]
 
 
 @freeze_time("2027-01-01")

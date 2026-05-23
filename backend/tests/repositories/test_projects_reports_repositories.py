@@ -11,68 +11,12 @@ from src.schemas.projects_reports import ProjectServiceReport
 from src.utils.db import deserialize_rows
 
 
-# TODO: extract to shared fixture
-@pytest.fixture(scope="module")
-def raw_daily_reports() -> list[dict[str, Any]]:
-    return [
-        {
-            "project_id": "project1",
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "services_reports": {
-                "service": {
-                    "current_status": "operational",
-                    "operational": 1,
-                    "degraded": 0,
-                    "outages": 0,
-                }
-            },
-        },
-        {
-            "project_id": "project2",
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "services_reports": {
-                "service": {
-                    "current_status": "degraded",
-                    "operational": 0,
-                    "degraded": 1,
-                    "outages": 0,
-                }
-            },
-        },
-        {
-            "project_id": "project1",
-            "date_str": "2027-01-02",
-            "created_at": datetime(year=2027, month=1, day=2),
-            "services_reports": {
-                "service": {
-                    "current_status": "outage",
-                    "operational": 0,
-                    "degraded": 0,
-                    "outages": 1,
-                }
-            },
-        },
-        {
-            "project_id": "project2",
-            "date_str": "2027-01-02",
-            "created_at": datetime(year=2027, month=1, day=2),
-            "services_reports": {
-                "service": {
-                    "current_status": "degraded",
-                    "operational": 0,
-                    "degraded": 1,
-                    "outages": 0,
-                }
-            },
-        },
-    ]
-
-
 @pytest.mark.asyncio
 async def test_fetch_reports_by_day(
-    session: AsyncSession, raw_daily_reports: list[dict[str, Any]]
+    session: AsyncSession,
+    raw_daily_reports: list[dict[str, Any]],
+    first_project1_report: dict[str, Any],
+    first_project2_report: dict[str, Any],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
@@ -81,38 +25,14 @@ async def test_fetch_reports_by_day(
         current_date=datetime(year=2027, month=1, day=1),
         session=session,
     )
-    assert raw_reports == [
-        {
-            "project_id": "project1",
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "services_reports": {
-                "service": {
-                    "current_status": "operational",
-                    "operational": 1,
-                    "degraded": 0,
-                    "outages": 0,
-                }
-            },
-        },
-        {
-            "project_id": "project2",
-            "date_str": "2027-01-01",
-            "created_at": datetime(year=2027, month=1, day=1),
-            "services_reports": {
-                "service": {
-                    "current_status": "degraded",
-                    "operational": 0,
-                    "degraded": 1,
-                    "outages": 0,
-                }
-            },
-        },
-    ]
+    assert raw_reports == [first_project1_report, first_project2_report]
 
 
 @pytest.mark.asyncio
-async def test_insert_report(session: AsyncSession):
+async def test_insert_report(
+    session: AsyncSession,
+    first_project1_report: dict[str, Any],
+):
     projects_reports_repository = get_projects_reports_repository()
 
     await projects_reports_repository.insert_report(
@@ -130,25 +50,13 @@ async def test_insert_report(session: AsyncSession):
     )
     result = await session.execute(select(DB_DailyProjectReport))
     raw_reports = deserialize_rows(result)
-    assert len(raw_reports) == 1
-    assert raw_reports[0] == {
-        "project_id": "project1",
-        "date_str": "2027-01-01",
-        "created_at": datetime(year=2027, month=1, day=1),
-        "services_reports": {
-            "service": {
-                "current_status": "operational",
-                "operational": 1,
-                "degraded": 0,
-                "outages": 0,
-            }
-        },
-    }
+    assert raw_reports == [first_project1_report]
 
 
 @pytest.mark.asyncio
 async def test_update_report(
-    session: AsyncSession, raw_daily_reports: list[dict[str, Any]]
+    session: AsyncSession,
+    raw_daily_reports: list[dict[str, Any]],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
@@ -203,7 +111,10 @@ async def test_update_report(
 
 @pytest.mark.asyncio
 async def test_delete_old_reports(
-    session: AsyncSession, raw_daily_reports: list[dict[str, Any]]
+    session: AsyncSession,
+    raw_daily_reports: list[dict[str, Any]],
+    second_project1_report: dict[str, Any],
+    second_project2_report: dict[str, Any],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
@@ -216,31 +127,4 @@ async def test_delete_old_reports(
     )
     result = await session.execute(select(DB_DailyProjectReport))
     raw_reports = deserialize_rows(result)
-    assert raw_reports == [
-        {
-            "project_id": "project1",
-            "date_str": "2027-01-02",
-            "created_at": datetime(year=2027, month=1, day=2),
-            "services_reports": {
-                "service": {
-                    "current_status": "outage",
-                    "operational": 0,
-                    "degraded": 0,
-                    "outages": 1,
-                }
-            },
-        },
-        {
-            "project_id": "project2",
-            "date_str": "2027-01-02",
-            "created_at": datetime(year=2027, month=1, day=2),
-            "services_reports": {
-                "service": {
-                    "current_status": "degraded",
-                    "operational": 0,
-                    "degraded": 1,
-                    "outages": 0,
-                }
-            },
-        },
-    ]
+    assert raw_reports == [second_project1_report, second_project2_report]
