@@ -70,6 +70,46 @@ def raw_daily_reports() -> list[dict[str, Any]]:
     ]
 
 
+@pytest.mark.asyncio
+async def test_fetch_reports_by_day(
+    session: AsyncSession, raw_daily_reports: list[dict[str, Any]]
+):
+    projects_reports_repository = get_projects_reports_repository()
+
+    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
+    raw_reports = await projects_reports_repository.fetch_reports_by_day(
+        current_date=datetime(year=2027, month=1, day=1),
+        session=session,
+    )
+    assert raw_reports == [
+        {
+            "project_id": "project1",
+            "date_str": "2027-01-01",
+            "created_at": datetime(year=2027, month=1, day=1),
+            "services_reports": {
+                "service": {
+                    "current_status": "operational",
+                    "operational": 1,
+                    "degraded": 0,
+                    "outages": 0,
+                }
+            },
+        },
+        {
+            "project_id": "project2",
+            "date_str": "2027-01-01",
+            "created_at": datetime(year=2027, month=1, day=1),
+            "services_reports": {
+                "service": {
+                    "current_status": "degraded",
+                    "operational": 0,
+                    "degraded": 1,
+                    "outages": 0,
+                }
+            },
+        },
+    ]
+
 
 @pytest.mark.asyncio
 async def test_insert_report(session: AsyncSession):
