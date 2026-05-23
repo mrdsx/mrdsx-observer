@@ -321,18 +321,23 @@ class DailyProjectReportsUpdater:
                 services_reports = self._derive_services_reports(
                     services_status=services_status,
                 )
+                await projects_reports_repository.insert_report(
+                    project_id=project_id,
+                    current_date=current_date,
+                    services_reports=services_reports,
+                    session=session,
+                )
             else:
                 self._update_project_report(
                     services_reports=services_reports,
                     services_status=services_status,
                 )
-
-            await projects_reports_repository.update_report(
-                project_id=project_id,
-                current_date=current_date,
-                services_reports=services_reports,
-                session=session,
-            )
+                await projects_reports_repository.update_report(
+                    project_id=project_id,
+                    current_date=current_date,
+                    services_reports=services_reports,
+                    session=session,
+                )
 
     async def _get_projects_status(
         self,

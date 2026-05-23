@@ -45,9 +45,9 @@ class ProjectsReportsRepository:
 
         return deserialize_rows(result)
 
-    def add_report(
+    async def insert_report(
         self,
-        project_id,
+        project_id: str,
         current_date: datetime,
         services_reports: dict[str, ProjectServiceReport],
         session: AsyncSession,
@@ -63,6 +63,7 @@ class ProjectsReportsRepository:
                 },
             )
         )
+        await session.commit()
 
     async def update_report(
         self,

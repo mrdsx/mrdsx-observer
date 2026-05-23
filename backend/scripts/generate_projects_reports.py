@@ -55,7 +55,7 @@ async def generate_projects_reports() -> None:
                         outages=1 if status == "outage" else 0,
                     )
 
-                projects_reports_repository.add_report(
+                await projects_reports_repository.insert_report(
                     project_id=project_id,
                     current_date=current_date,
                     services_reports=services_reports,
@@ -63,8 +63,6 @@ async def generate_projects_reports() -> None:
                 )
 
             print(f"Created report with {date_str=}")
-
-        await session.commit()
 
     await redis.delete(RedisKeys.PROJECTS_REPORTS)
     print(f"Cleared cache for {RedisKeys.PROJECTS_REPORTS}")
