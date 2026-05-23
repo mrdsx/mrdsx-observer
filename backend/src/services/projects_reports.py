@@ -355,13 +355,11 @@ class DailyProjectReportsUpdater:
                 snapshotter.capture_swift_tracker(http_client=http_client)
             )
 
-        projects_status: list[tuple[str, dict[str, ServiceStatus]]] = [
+        return [
             ("olympiad-preparation", task1.result()),
             ("classic-word-game", task2.result()),
             ("swift-tracker", task3.result()),
         ]
-
-        return projects_status
 
     def _derive_services_reports(
         self,
