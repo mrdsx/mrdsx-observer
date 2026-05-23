@@ -46,7 +46,7 @@ crons = Crons(app)
 
 
 # every X minutes
-@crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *")
+@crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *", max_retries=5)
 async def report_projects_status() -> None:
     snapshotter = ProjectsStateSnapshotter()
     daily_report_updater = DailyProjectReportsUpdater()

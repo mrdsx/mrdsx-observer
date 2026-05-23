@@ -346,7 +346,7 @@ class DailyProjectReportsUpdater:
     ) -> list[tuple[str, dict[str, ServiceStatus]]]:
         async with asyncio.TaskGroup() as task_group:
             task1 = task_group.create_task(
-                snapshotter.capture_olympiad_preparation(http_client=http_client),
+                snapshotter.capture_olympiad_preparation(http_client=http_client)
             )
             task2 = task_group.create_task(
                 snapshotter.capture_classic_word_game(http_client=http_client)
