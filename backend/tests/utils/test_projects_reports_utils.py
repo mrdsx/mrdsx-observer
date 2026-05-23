@@ -11,11 +11,11 @@ from src.utils.projects_reports import (
 )
 
 
+# TODO: extract to shared fixture
 @pytest.fixture(scope="module")
 def raw_daily_reports() -> list[dict[str, Any]]:
     return [
         {
-            "id": 1,
             "date_str": "2027-01-01",
             "created_at": datetime(year=2027, month=1, day=1),
             "project_id": "project1",
@@ -29,7 +29,6 @@ def raw_daily_reports() -> list[dict[str, Any]]:
             },
         },
         {
-            "id": 2,
             "date_str": "2027-01-01",
             "created_at": datetime(year=2027, month=1, day=1),
             "project_id": "project2",
@@ -43,7 +42,6 @@ def raw_daily_reports() -> list[dict[str, Any]]:
             },
         },
         {
-            "id": 3,
             "date_str": "2027-01-01",
             "created_at": datetime(year=2027, month=1, day=1),
             "project_id": "project3",
