@@ -37,6 +37,14 @@ class Settings(BaseSettings):
             "decode_responses": True,
         }
 
+    @property
+    def test_redis_settings(self) -> dict[str, Any]:
+        return {
+            "host": "localhost",
+            "port": 6380,
+            "decode_responses": True,
+        }
+
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
