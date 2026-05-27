@@ -1,4 +1,13 @@
 services:
+  test_postgres:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+    ports:
+      - "5440:5432"
+
   test_redis:
     image: redis:8.6.3-alpine
     ports:

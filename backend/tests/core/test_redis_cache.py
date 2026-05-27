@@ -12,8 +12,7 @@ settings = get_settings()
 
 
 @pytest_asyncio.fixture
-async def mock_class():
-    redis = Redis(**settings.test_redis_settings)
+async def mock_class(redis: Redis):
     redis_cache = get_redis_cache(redis=redis)
 
     class MockClass:
@@ -33,10 +32,7 @@ async def mock_class():
         async def wrong_type(self) -> str:
             return "wrong type"
 
-    yield MockClass()
-
-    await redis.flushdb()
-    await redis.close()
+    return MockClass()
 
 
 @pytest.mark.asyncio

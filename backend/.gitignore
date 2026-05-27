@@ -1,6 +1,7 @@
-.venv
-.env
-cron_state*
-
 __pycache__
 .ruff_cache
+.venv
+cron_state*
+
+.env
+test.lock
