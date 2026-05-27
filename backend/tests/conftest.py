@@ -1,30 +1,22 @@
 from collections.abc import AsyncGenerator
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import pytest
 import pytest_asyncio
-from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.core.constants import TEST_LOCK_FILE
-from src.core.settings import get_settings  # noqa: E402
+from src.core.settings import get_settings
 from src.models import Base
 
 settings = get_settings()
 
-# Step 1: create 'test.lock' file
-Path(TEST_LOCK_FILE).touch()
 
-
-# Step 2: remove 'test.lock' file
-# code after 'yield' keyword will be executed after all tests have been run
 @pytest_asyncio.fixture(autouse=True, scope="session")
 async def test_lifespan():
     settings.app_env = "test"
     yield
-    Path(TEST_LOCK_FILE).unlink(missing_ok=True)
+    ...
 
 
 @pytest.fixture(scope="session")
@@ -129,11 +121,3 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
-
-
-@pytest_asyncio.fixture
-async def redis():
-    redis = Redis(**settings.redis_settings)
-    yield redis
-    await redis.flushdb()
-    await redis.close()

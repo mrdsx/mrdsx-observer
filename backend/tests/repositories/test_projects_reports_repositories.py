@@ -19,7 +19,6 @@ async def test_fetch_reports_for_period(
     session: AsyncSession,
     raw_daily_reports: list[dict[str, Any]],
 ):
-    # test without refresh
     projects_reports_repository = get_projects_reports_repository()
 
     # TODO: move db reports to fixture
@@ -36,25 +35,6 @@ async def test_fetch_reports_for_period(
         start_date=datetime(year=2026, month=1, day=1),
         end_date=datetime(year=2027, month=1, day=2),
         session=session,
-    )
-    assert len(raw_reports) == 4
-
-    # test with refresh
-    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
-    raw_reports = await projects_reports_repository.fetch_reports_for_period(
-        start_date=datetime(year=2026, month=1, day=1),
-        end_date=datetime(year=2027, month=1, day=2),
-        session=session,
-        force_refresh=True,  # pyright: ignore[reportCallIssue]
-    )
-    assert len(raw_reports) == 4
-
-    await session.execute(delete(DB_DailyProjectReport))
-    raw_reports = await projects_reports_repository.fetch_reports_for_period(
-        start_date=datetime(year=2026, month=1, day=1),
-        end_date=datetime(year=2027, month=1, day=2),
-        session=session,
-        force_refresh=True,  # pyright: ignore[reportCallIssue]
     )
     assert len(raw_reports) == 0
 

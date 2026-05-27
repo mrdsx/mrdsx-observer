@@ -66,7 +66,6 @@ async def report_projects_status() -> None:
             start_date=start_date,
             end_date=end_date,
             session=session,
-            force_refresh=True,  # pyright: ignore[reportCallIssue]
         )
 
 

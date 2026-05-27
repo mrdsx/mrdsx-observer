@@ -5,3 +5,4 @@
 
 cron_state*
 .env
+test.lock

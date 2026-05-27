@@ -16,8 +16,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
         print(f"Environment   - {settings.app_env}")
         print(f"Postgres host - {settings.db_host}")
         print(f"Postgres port - {settings.db_port}")
-        print(f"Redis host    - {settings.redis_host}")
-        print(f"Redis port    - {settings.redis_port}")
 
     await initialize_db()
     yield

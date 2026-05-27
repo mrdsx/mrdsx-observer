@@ -17,7 +17,7 @@ Copy `.env.dev` to `.env` and fill in blank variables if needed for each directo
 ```sh
 bun dev                                 # Start frontend
 uv run uvicorn src.main:app --reload    # Start backend
-docker compose -f compose.dev.yaml up   # Start local PostgreSQL and Redis
+docker compose -f compose.dev.yaml up   # Start local PostgreSQL
 ```
 
 ### Production
@@ -32,7 +32,7 @@ Also, copy `.env.postgres.example` to `.env.postgres` in project root.
 
 **Important note!**
 
-Environment variables from `./.env.postgres` must be identical to variables from `./backend/.env` like so:
+Environment variables from `./.env.postgres` must be identical to variables in `./backend/.env` like so:
 
 | `.env.postgres`     | `.env`        |
 | ------------------- | ------------- |
@@ -45,4 +45,4 @@ cd scripts
 . ./start.prod.sh   # Run standalone script that'll start all necessary services
 ```
 
-Production uses Docker for running self-hosted frontend, backend, PostgreSQL and Redis.
+Production uses Docker for running self-hosted frontend, backend and PostgreSQL.

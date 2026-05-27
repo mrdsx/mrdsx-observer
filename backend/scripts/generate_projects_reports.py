@@ -5,9 +5,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import delete
 
 from src.api.dependencies import get_projects_reports_repository
-from src.api.dependencies.redis import get_redis
 from src.api.dependencies.session import get_session
-from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS, RedisKeys
+from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS
 from src.core.types import ServiceStatus
 from src.models.projects_reports import DB_DailyProjectReport
 from src.schemas.projects_reports import ProjectServiceReport
@@ -26,7 +25,6 @@ def get_random_status() -> ServiceStatus:
 
 
 async def generate_projects_reports() -> None:
-    redis = get_redis()
     projects_reports_repository = get_projects_reports_repository()
 
     projects = [
@@ -63,9 +61,6 @@ async def generate_projects_reports() -> None:
                 )
 
             print(f"Created report with {date_str=}")
-
-    await redis.delete(RedisKeys.PROJECTS_REPORTS)
-    print(f"Cleared cache for {RedisKeys.PROJECTS_REPORTS}")
 
 
 if __name__ == "__main__":
