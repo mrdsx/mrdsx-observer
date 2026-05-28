@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Any
 
+import httpx
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -119,3 +120,9 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def http_client() -> AsyncGenerator[httpx.AsyncClient]:
+    async with httpx.AsyncClient() as http_client:
+        yield http_client
