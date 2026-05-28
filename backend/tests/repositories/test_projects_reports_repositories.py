@@ -17,18 +17,18 @@ settings = get_settings()
 @pytest.mark.asyncio
 async def test_fetch_reports_for_period(
     session: AsyncSession,
+    db_daily_reports: list[DB_DailyProjectReport],
     raw_daily_reports: list[dict[str, Any]],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
-    # TODO: move db reports to fixture
-    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
+    session.add_all(db_daily_reports)
     raw_reports = await projects_reports_repository.fetch_reports_for_period(
         start_date=datetime(year=2026, month=1, day=1),
         end_date=datetime(year=2027, month=1, day=2),
         session=session,
     )
-    assert len(raw_reports) == 4
+    assert raw_reports == raw_daily_reports
 
     await session.execute(delete(DB_DailyProjectReport))
     raw_reports = await projects_reports_repository.fetch_reports_for_period(
@@ -36,19 +36,19 @@ async def test_fetch_reports_for_period(
         end_date=datetime(year=2027, month=1, day=2),
         session=session,
     )
-    assert len(raw_reports) == 0
+    assert raw_reports == []
 
 
 @pytest.mark.asyncio
 async def test_fetch_reports_by_day(
     session: AsyncSession,
-    raw_daily_reports: list[dict[str, Any]],
+    db_daily_reports: list[DB_DailyProjectReport],
     first_project1_report: dict[str, Any],
     first_project2_report: dict[str, Any],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
-    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
+    session.add_all(db_daily_reports)
     raw_reports = await projects_reports_repository.fetch_reports_by_day(
         current_date=datetime(year=2027, month=1, day=1),
         session=session,
@@ -62,6 +62,9 @@ async def test_insert_report(
     first_project1_report: dict[str, Any],
 ):
     projects_reports_repository = get_projects_reports_repository()
+
+    result = await session.execute(select(DB_DailyProjectReport))
+    assert len(result.scalars().all()) == 0
 
     await projects_reports_repository.insert_report(
         project_id="project1",
@@ -84,14 +87,14 @@ async def test_insert_report(
 @pytest.mark.asyncio
 async def test_update_report(
     session: AsyncSession,
-    raw_daily_reports: list[dict[str, Any]],
+    db_daily_reports: list[DB_DailyProjectReport],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
-    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
+    session.add_all(db_daily_reports)
     result = await session.execute(select(DB_DailyProjectReport))
     raw_reports = deserialize_rows(result)
-    assert len(raw_reports) == len(raw_daily_reports)
+    assert len(raw_reports) == len(db_daily_reports)
     assert raw_reports[-1] == {
         "project_id": "project2",
         "date_str": "2027-01-02",
@@ -121,7 +124,7 @@ async def test_update_report(
     )
     result = await session.execute(select(DB_DailyProjectReport))
     raw_reports = deserialize_rows(result)
-    assert len(raw_reports) == len(raw_daily_reports)
+    assert len(raw_reports) == len(db_daily_reports)
     assert raw_reports[-1] == {
         "project_id": "project2",
         "date_str": "2027-01-02",
@@ -140,15 +143,15 @@ async def test_update_report(
 @pytest.mark.asyncio
 async def test_delete_old_reports(
     session: AsyncSession,
-    raw_daily_reports: list[dict[str, Any]],
+    db_daily_reports: list[DB_DailyProjectReport],
     second_project1_report: dict[str, Any],
     second_project2_report: dict[str, Any],
 ):
     projects_reports_repository = get_projects_reports_repository()
 
-    session.add_all([DB_DailyProjectReport(**report) for report in raw_daily_reports])
+    session.add_all(db_daily_reports)
     result = await session.execute(select(DB_DailyProjectReport))
-    assert len(result.scalars().all()) == len(raw_daily_reports)
+    assert len(result.scalars().all()) == len(db_daily_reports)
 
     await projects_reports_repository.delete_old_reports(
         cutoff_date=datetime(year=2027, month=1, day=2), session=session
