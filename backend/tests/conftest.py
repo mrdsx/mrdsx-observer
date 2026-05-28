@@ -15,11 +15,9 @@ settings = get_settings()
 @pytest_asyncio.fixture(autouse=True, scope="session")
 async def test_lifespan():
     settings.app_env = "test"
-    yield
-    ...
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def first_project1_report() -> dict[str, Any]:
     return {
         "project_id": "project1",
@@ -36,7 +34,7 @@ def first_project1_report() -> dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def first_project2_report() -> dict[str, Any]:
     return {
         "project_id": "project2",
@@ -53,7 +51,7 @@ def first_project2_report() -> dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def second_project1_report() -> dict[str, Any]:
     return {
         "project_id": "project1",
@@ -70,7 +68,7 @@ def second_project1_report() -> dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def second_project2_report() -> dict[str, Any]:
     return {
         "project_id": "project2",
@@ -87,7 +85,7 @@ def second_project2_report() -> dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def raw_daily_reports(
     first_project1_report: dict[str, Any],
     first_project2_report: dict[str, Any],
