@@ -10,7 +10,6 @@ from src.api.dependencies import (
     get_projects_reports_repository,
 )
 from src.api.dependencies.session import get_session
-from src.core.constants import LOGGING_INTERVAL_MINUTES
 from src.core.settings import get_settings
 from src.services.projects_reports import (
     DailyProjectReportsUpdater,
@@ -46,7 +45,7 @@ crons = Crons(app)
 
 
 # every X minutes
-@crons.cron(f"*/{LOGGING_INTERVAL_MINUTES} * * * *", max_retries=5)
+@crons.cron(f"*/{settings.logging_interval_minutes} * * * *", max_retries=5)
 async def report_projects_status() -> None:
     snapshotter = ProjectsStateSnapshotter()
     daily_report_updater = DailyProjectReportsUpdater()

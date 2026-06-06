@@ -27,6 +27,12 @@ class Settings(BaseSettings):
             f"/{self.db_name}"
         )
 
+    @property
+    def logging_interval_minutes(self) -> int:
+        if self.app_env == "prod":
+            return 5
+        return 1
+
     model_config = SettingsConfigDict(env_file=".env", extra="forbid")
 
 
