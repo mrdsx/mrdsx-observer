@@ -96,7 +96,7 @@ class ProjectsStateSnapshotter:
         http_client: AsyncClient,
     ) -> dict[str, ServiceStatus]:
         site_response = await send_request(
-            "https://swift-tracker.net",
+            "https://swift-tracker-mrdsxs-projects.vercel.app/",
             http_client=http_client,
         )
 
