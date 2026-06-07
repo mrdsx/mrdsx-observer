@@ -1,17 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { REPORTS_WINDOW_DAYS } from "./constants";
 import type { DailyReport, Project } from "./schemas";
-
-export function appContainer(): HTMLElement | null | undefined {
-  return typeof document === "undefined"
-    ? undefined
-    : document.getElementById("root");
-}
-
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
-}
 
 export function dateToLocaleDateString(value: string): string {
   const date = new Date(value);

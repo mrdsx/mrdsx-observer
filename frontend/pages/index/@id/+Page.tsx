@@ -1,5 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import { useData } from "vike-react/useData";
+import { ArrowLeftIcon } from "lucide-solid";
+import { useData } from "vike-solid/useData";
 import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -24,34 +24,28 @@ export default function ServicesReportsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Button
-        render={
-          <a href="/">
-            <ArrowLeft /> Back
-          </a>
-        }
-        variant="outline"
-      />
-      <h1 className="text-2xl font-semibold">{dataResult.data.projectName}</h1>
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {dataResult.data.services
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map((service) => (
-            <Card className="max-w-125" key={service.name}>
-              <CardHeader className="border-b">
-                <CardTitle>{service.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4 flex flex-wrap justify-between gap-2">
-                  <StatusBadge status={service.currentStatus} />
-                  <span className="text-[16px]">Uptime: {service.uptime}%</span>
-                </div>
+    <div class="space-y-4">
+      <Button as="a" href="/" variant="outline">
+        <ArrowLeftIcon />
+        Back
+      </Button>
+      <h1 class="text-2xl font-semibold">{dataResult.data.projectName}</h1>
+      <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {dataResult.data.services.map((service) => (
+          <Card class="max-w-125">
+            <CardHeader class="border-b">
+              <CardTitle>{service.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="mb-4 flex flex-wrap justify-between gap-2">
+                <StatusBadge status={service.currentStatus} />
+                <span class="text-[16px]">Uptime: {service.uptime}%</span>
+              </div>
 
-                <DailyReports dailyReports={service.dailyReports} />
-              </CardContent>
-            </Card>
-          ))}
+              <DailyReports dailyReports={service.dailyReports} />
+            </CardContent>
+          </Card>
+        ))}
       </ul>
     </div>
   );

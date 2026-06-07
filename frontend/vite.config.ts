@@ -1,13 +1,11 @@
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
 import vike from "vike/plugin";
+import vikeSolid from "vike-solid/vite";
 import { defineConfig } from "vite";
 
-/// <reference types="@batijs/core/types" />
-
 export default defineConfig({
-  plugins: [vike(), react(), tailwindcss()],
+  plugins: [vike(), vikeSolid(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

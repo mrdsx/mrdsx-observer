@@ -1,4 +1,4 @@
-import type { Project } from "../lib/schemas";
+import type { Project } from "@/lib/schemas";
 import { Badge } from "./ui/badge";
 
 type StatusBadgeProps = {

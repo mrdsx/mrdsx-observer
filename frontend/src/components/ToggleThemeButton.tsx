@@ -1,14 +1,17 @@
-import { MoonIcon, SunIcon } from "lucide-react";
-import { useThemeStore } from "@/stores/theme";
+import { MoonIcon, SunIcon } from "lucide-solid";
+import { Show } from "solid-js";
+import { isDarkMode, toggleTheme } from "@/stores/theme";
 import { Button } from "./ui/button";
 
 export function ToggleThemeButton() {
-  const isDarkMode = useThemeStore((state) => state.isDarkMode);
-  const toggleTheme = useThemeStore((state) => state.toggleTheme);
-
   return (
-    <Button size="lg" variant="outline" onClick={toggleTheme}>
-      {isDarkMode ? <SunIcon /> : <MoonIcon />}
+    <Button size="icon" variant="outline" onClick={toggleTheme}>
+      <Show when={isDarkMode()}>
+        <SunIcon />
+      </Show>
+      <Show when={!isDarkMode()}>
+        <MoonIcon />
+      </Show>
     </Button>
   );
 }

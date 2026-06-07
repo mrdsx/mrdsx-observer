@@ -1,22 +1,18 @@
-import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { createSignal } from "solid-js";
 
-type ThemeState = {
-  isDarkMode: boolean;
-  toggleTheme: () => void;
-};
+const LOCAL_STORAGE_KEY = "darkMode";
 
-export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set) => ({
-      isDarkMode: false,
-      toggleTheme: () => {
-        set((state) => ({ isDarkMode: !state.isDarkMode }));
-      },
-    }),
-    {
-      name: "theme",
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
-);
+const [isDarkMode, setIsDarkMode] = createSignal(false);
+
+function initTheme(): void {
+  const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+  setIsDarkMode(stored === "true");
+}
+
+function toggleTheme(): void {
+  const nextTheme = !isDarkMode();
+  setIsDarkMode(nextTheme);
+  localStorage.setItem(LOCAL_STORAGE_KEY, String(nextTheme));
+}
+
+export { initTheme, isDarkMode, toggleTheme };

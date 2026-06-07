@@ -1,5 +1,5 @@
-import { ExternalLink } from "lucide-react";
-import { useData } from "vike-react/useData";
+import { ExternalLink } from "lucide-solid";
+import { useData } from "vike-solid/useData";
 import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -20,35 +20,32 @@ export default function HomePage() {
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {dataResult.data.projects
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((project) => (
-          <Card className="max-w-125" key={project.id}>
-            <CardHeader className="border-b">
-              <CardTitle className="flex items-center gap-2">
-                {project.name}
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  render={
-                    <a href={`/${project.id}`}>
-                      <ExternalLink />
-                    </a>
-                  }
-                />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4 flex flex-wrap justify-between gap-2">
-                <StatusBadge status={project.currentStatus} />
-                <span className="text-[16px]">Uptime: {project.uptime}%</span>
-              </div>
+    <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {dataResult.data.projects.map((project) => (
+        <Card class="max-w-125">
+          <CardHeader class="border-b">
+            <CardTitle class="flex items-center gap-2">
+              {project.name}
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                as="a"
+                href={`/${project.id}`}
+              >
+                <ExternalLink />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="mb-4 flex flex-wrap justify-between gap-2">
+              <StatusBadge status={project.currentStatus} />
+              <span class="text-[16px]">Uptime: {project.uptime}%</span>
+            </div>
 
-              <DailyReports dailyReports={project.dailyReports} />
-            </CardContent>
-          </Card>
-        ))}
+            <DailyReports dailyReports={project.dailyReports} />
+          </CardContent>
+        </Card>
+      ))}
     </ul>
   );
 }

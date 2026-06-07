@@ -1,12 +1,7 @@
-import { useState } from "react";
-import { cn, dateToLocaleDateString } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "./ui/popover";
+import { createSignal } from "solid-js";
+import { cx } from "@/lib/cva";
+import { dateToLocaleDateString } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type ReportItemProps = Partial<{
   date: string;
@@ -19,19 +14,19 @@ export function ProjectReportItem({
   worstStatus,
   uptime,
 }: ReportItemProps) {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = createSignal<boolean>(false);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open()} onOpenChange={setOpen}>
       <PopoverTrigger
-        className="group outline-0"
+        class="group outline-0"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
       >
         <div
-          className={cn(
+          class={cx(
             "h-6 w-2 rounded group-hover:-translate-y-1 duration-50 outline-0",
-            open ? "-translate-y-1" : "group-hover:translate-y-0",
+            open() ? "-translate-y-1" : "group-hover:translate-y-0",
             worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
             worstStatus === "outage"
               ? "bg-red-500"
@@ -41,18 +36,14 @@ export function ProjectReportItem({
           )}
         />
       </PopoverTrigger>
-      {/* DO NOT REMOVE `sideOffset` */}
-      {/* Removing it will result in layout flicker when hovering from bottom */}
-      <PopoverContent className="max-w-50" sideOffset={15}>
-        <PopoverHeader>
-          <PopoverTitle>
-            {date !== undefined && dateToLocaleDateString(date)}
-          </PopoverTitle>
-          <div className="text-muted-foreground">
-            <p>Status: {worstStatus === undefined ? "-" : worstStatus}</p>
-            <p>Uptime: {uptime === undefined ? "-" : `${uptime}%`}</p>
-          </div>
-        </PopoverHeader>
+      <PopoverContent class="max-w-50">
+        <span class="font-semibold mb-2">
+          {date !== undefined && dateToLocaleDateString(date)}
+        </span>
+        <div class="text-muted-foreground">
+          <p>Status: {worstStatus === undefined ? "-" : worstStatus}</p>
+          <p>Uptime: {uptime === undefined ? "-" : `${uptime}%`}</p>
+        </div>
       </PopoverContent>
     </Popover>
   );

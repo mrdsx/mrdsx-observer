@@ -1,6 +1,7 @@
 {
   "tab_size": 2,
   "code_actions_on_format": {
-    "source.organizeImports.biome": true
-  }
+    "source.organizeImports": true,
+    "source.fixAll": true,
+  },
 }

@@ -1,14 +1,10 @@
-import { AlertCircleIcon } from "lucide-react";
+import { CircleAlertIcon } from "lucide-solid";
 
-type ErrorViewProps = {
-  content: string;
-};
-
-export function ErrorView({ content }: ErrorViewProps) {
+export function ErrorView(props: { content: string }) {
   return (
-    <div className="flex self-center gap-2 rounded-lg py-20 text-red-600 dark:text-red-400">
-      <AlertCircleIcon className="text-xl" />
-      <p>{content}</p>
+    <div class="flex self-center gap-2 rounded-lg py-20 text-red-600 dark:text-red-400">
+      <CircleAlertIcon class="text-xl" />
+      <p>{props.content}</p>
     </div>
   );
 }

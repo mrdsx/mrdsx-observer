@@ -1,13 +1,11 @@
 import type { Config } from "vike/types";
-import vikeReact from "vike-react/config";
+import vikeSolid from "vike-solid/config";
 
 // Default config (can be overridden by pages)
 // https://vike.dev/config
 
 export default {
-  // https://vike.dev/head-tags
   title: "mrdsx observer",
-  extends: [vikeReact],
-
+  extends: [vikeSolid],
   server: true,
 } satisfies Config;
