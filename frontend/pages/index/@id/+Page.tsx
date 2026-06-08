@@ -1,4 +1,5 @@
 import { ArrowLeftIcon } from "lucide-solid";
+import { For } from "solid-js";
 import { useData } from "vike-solid/useData";
 import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
@@ -31,21 +32,23 @@ export default function ServicesReportsPage() {
       </Button>
       <h1 class="text-2xl font-semibold">{dataResult.data.projectName}</h1>
       <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {dataResult.data.services.map((service) => (
-          <Card class="max-w-125">
-            <CardHeader class="border-b">
-              <CardTitle>{service.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div class="mb-4 flex flex-wrap justify-between gap-2">
-                <StatusBadge status={service.currentStatus} />
-                <span class="text-[16px]">Uptime: {service.uptime}%</span>
-              </div>
+        <For each={dataResult.data.services}>
+          {(service) => (
+            <Card class="max-w-125">
+              <CardHeader class="border-b">
+                <CardTitle>{service.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="mb-4 flex flex-wrap justify-between gap-2">
+                  <StatusBadge status={service.currentStatus} />
+                  <span class="text-[16px]">Uptime: {service.uptime}%</span>
+                </div>
 
-              <DailyReports dailyReports={service.dailyReports} />
-            </CardContent>
-          </Card>
-        ))}
+                <DailyReports dailyReports={service.dailyReports} />
+              </CardContent>
+            </Card>
+          )}
+        </For>
       </ul>
     </div>
   );

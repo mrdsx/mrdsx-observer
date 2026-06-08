@@ -1,4 +1,5 @@
 import { ExternalLinkIcon } from "lucide-solid";
+import { For } from "solid-js";
 import { useData } from "vike-solid/useData";
 import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
@@ -21,31 +22,33 @@ export default function HomePage() {
 
   return (
     <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {dataResult.data.projects.map((project) => (
-        <Card class="max-w-125">
-          <CardHeader class="border-b">
-            <CardTitle class="flex items-center gap-2">
-              {project.name}
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                as="a"
-                href={`/${project.id}`}
-              >
-                <ExternalLinkIcon />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="mb-4 flex flex-wrap justify-between gap-2">
-              <StatusBadge status={project.currentStatus} />
-              <span class="text-[16px]">Uptime: {project.uptime}%</span>
-            </div>
+      <For each={dataResult.data.projects}>
+        {(project) => (
+          <Card class="max-w-125">
+            <CardHeader class="border-b">
+              <CardTitle class="flex items-center gap-2">
+                {project.name}
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  as="a"
+                  href={`/${project.id}`}
+                >
+                  <ExternalLinkIcon />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="mb-4 flex flex-wrap justify-between gap-2">
+                <StatusBadge status={project.currentStatus} />
+                <span class="text-[16px]">Uptime: {project.uptime}%</span>
+              </div>
 
-            <DailyReports dailyReports={project.dailyReports} />
-          </CardContent>
-        </Card>
-      ))}
+              <DailyReports dailyReports={project.dailyReports} />
+            </CardContent>
+          </Card>
+        )}
+      </For>
     </ul>
   );
 }

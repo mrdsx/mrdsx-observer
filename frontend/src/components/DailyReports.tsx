@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import type { DailyReport } from "@/lib/schemas";
 import { mapReports } from "@/lib/utils";
 import { DailyReportItem } from "./DailyReportItem";
@@ -14,15 +15,17 @@ export function DailyReports({
 
   return (
     <div class="flex flex-wrap gap-0.5">
-      {mappedReports.map((report) => {
-        return (
-          <DailyReportItem
-            date={report?.date}
-            worstStatus={report?.worstStatus}
-            uptime={report?.uptime}
-          />
-        );
-      })}
+      <For each={mappedReports}>
+        {(report) => {
+          return (
+            <DailyReportItem
+              date={report?.date}
+              worstStatus={report?.worstStatus}
+              uptime={report?.uptime}
+            />
+          );
+        }}
+      </For>
     </div>
   );
 }
