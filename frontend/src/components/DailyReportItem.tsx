@@ -1,5 +1,4 @@
 import { createSignal } from "solid-js";
-import { cx } from "@/lib/cva";
 import { dateToLocaleDateString } from "@/lib/utils";
 import {
   Popover,
@@ -29,16 +28,15 @@ export function DailyReportItem({
         onMouseLeave={() => setOpen(false)}
       >
         <div
-          class={cx(
-            "h-6 w-2 rounded group-hover:-translate-y-0.75 duration-50 outline-0",
-            open() ? "-translate-y-0.75" : "group-hover:translate-y-0",
-            worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
-            worstStatus === "outage"
-              ? "bg-red-500"
-              : worstStatus === "degraded"
-                ? "bg-yellow-500"
-                : worstStatus === "operational" && "bg-green-500",
-          )}
+          class="h-6 w-2 rounded group-hover:-translate-y-0.75 duration-50 outline-0"
+          classList={{
+            "-translate-y-0.75": open(),
+            "group-hover:translate-y-0": !open(),
+            "bg-gray-300 dark:bg-gray-500": worstStatus === undefined,
+            "bg-red-500": worstStatus === "outage",
+            "bg-yellow-500": worstStatus === "degraded",
+            "bg-green-500": worstStatus === "operational",
+          }}
         />
       </PopoverTrigger>
       <PopoverContent class="max-w-50">
