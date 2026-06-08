@@ -53,3 +53,10 @@ export function PopoverContent<T extends ValidComponent = "div">(
     </PopoverPortal>
   );
 }
+
+export type PopoverArrowProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof PopoverPrimitive.Arrow<T>>;
+
+export function PopoverArrow(props: PopoverArrowProps) {
+  return <PopoverPrimitive.Arrow {...props} />;
+}

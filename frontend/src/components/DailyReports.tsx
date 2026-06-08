@@ -1,6 +1,6 @@
 import type { DailyReport } from "@/lib/schemas";
 import { mapReports } from "@/lib/utils";
-import { ProjectReportItem } from "./ProjectReportItem";
+import { DailyReportItem } from "./DailyReportItem";
 
 export function DailyReports({
   dailyReports,
@@ -16,7 +16,7 @@ export function DailyReports({
     <div class="flex flex-wrap gap-0.5">
       {mappedReports.map((report) => {
         return (
-          <ProjectReportItem
+          <DailyReportItem
             date={report?.date}
             worstStatus={report?.worstStatus}
             uptime={report?.uptime}

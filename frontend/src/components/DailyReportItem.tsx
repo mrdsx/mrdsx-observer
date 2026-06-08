@@ -1,7 +1,12 @@
 import { createSignal } from "solid-js";
 import { cx } from "@/lib/cva";
 import { dateToLocaleDateString } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover";
 
 type ReportItemProps = Partial<{
   date: string;
@@ -9,7 +14,7 @@ type ReportItemProps = Partial<{
   uptime: number;
 }>;
 
-export function ProjectReportItem({
+export function DailyReportItem({
   date,
   worstStatus,
   uptime,
@@ -17,7 +22,7 @@ export function ProjectReportItem({
   const [open, setOpen] = createSignal<boolean>(false);
 
   return (
-    <Popover open={open()} onOpenChange={setOpen}>
+    <Popover gutter={0} open={open()} onOpenChange={setOpen}>
       <PopoverTrigger
         class="group outline-0"
         onMouseEnter={() => setOpen(true)}
@@ -25,8 +30,8 @@ export function ProjectReportItem({
       >
         <div
           class={cx(
-            "h-6 w-2 rounded group-hover:-translate-y-1 duration-50 outline-0",
-            open() ? "-translate-y-1" : "group-hover:translate-y-0",
+            "h-6 w-2 rounded group-hover:-translate-y-0.75 duration-50 outline-0",
+            open() ? "-translate-y-0.75" : "group-hover:translate-y-0",
             worstStatus === undefined && "bg-gray-300 dark:bg-gray-500",
             worstStatus === "outage"
               ? "bg-red-500"
@@ -37,11 +42,12 @@ export function ProjectReportItem({
         />
       </PopoverTrigger>
       <PopoverContent class="max-w-50">
+        <PopoverArrow />
         <span class="font-semibold mb-2">
           {date !== undefined && dateToLocaleDateString(date)}
         </span>
         <div class="text-muted-foreground">
-          <p>Status: {worstStatus === undefined ? "-" : worstStatus}</p>
+          <p>Status: {worstStatus ?? "-"}</p>
           <p>Uptime: {uptime === undefined ? "-" : `${uptime}%`}</p>
         </div>
       </PopoverContent>
