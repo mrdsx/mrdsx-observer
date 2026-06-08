@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-solid";
+import { ExternalLinkIcon } from "lucide-solid";
 import { useData } from "vike-solid/useData";
 import { DailyReports } from "@/components/DailyReports";
 import { ErrorView } from "@/components/ErrorView";
@@ -32,7 +32,7 @@ export default function HomePage() {
                 as="a"
                 href={`/${project.id}`}
               >
-                <ExternalLink />
+                <ExternalLinkIcon />
               </Button>
             </CardTitle>
           </CardHeader>
