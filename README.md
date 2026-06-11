@@ -4,6 +4,13 @@
 
 A dashboard for monitoring my projects status.
 
+## Migration history
+
+1. Next.js
+2. Vike + React
+3. Vike + Solid
+4. SolidStart (current)
+
 ## Get started
 
 ### Development

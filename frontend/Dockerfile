@@ -8,4 +8,4 @@ RUN bun install --frozen-lockfile --production
 COPY . .
 RUN bun run build
 
-CMD ["bun", "./dist/server/index.mjs"]
+CMD ["bun", "./.output/server/index.mjs"]

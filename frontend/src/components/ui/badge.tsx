@@ -2,7 +2,6 @@ import { Badge as BadgePrimitive } from "@kobalte/core/badge";
 import type { VariantProps } from "cva";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
-
 import { cva } from "@/lib/cva";
 
 export const badgeVariants = cva({

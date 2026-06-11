@@ -33,6 +33,8 @@ const serviceSchema = z.object({
   dailyReports: z.array(dailyReportSchema),
 });
 
+type Service = z.infer<typeof serviceSchema>;
+
 const servicesReportsSchema = z.object({
   projectName: z.string(),
   services: z.array(serviceSchema),
@@ -45,6 +47,7 @@ export {
   type Project,
   type ProjectsReports,
   projectsReportsSchema,
+  type Service,
   type ServicesReports,
   servicesReportsSchema,
 };

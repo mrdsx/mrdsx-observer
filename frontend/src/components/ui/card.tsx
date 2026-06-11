@@ -1,6 +1,5 @@
 import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
-
 import { cx } from "@/lib/cva";
 
 export type CardProps = ComponentProps<"div">;

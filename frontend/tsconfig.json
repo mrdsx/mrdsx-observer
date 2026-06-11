@@ -1,20 +1,19 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["vite/client", "vike-solid/client", "node"],
-    "noEmit": true,
-    "skipLibCheck": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "jsxImportSource": "solid-js",
-
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["vinxi/types/client"],
+    "isolatedModules": true,
     "paths": {
       "@/*": ["./src/*"]
     }
-  },
-  "exclude": ["dist"]
+  }
 }
