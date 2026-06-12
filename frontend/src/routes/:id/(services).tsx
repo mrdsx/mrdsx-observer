@@ -1,10 +1,9 @@
 import { createAsync, query, useParams } from "@solidjs/router";
 import { ArrowLeftIcon } from "lucide-solid";
-import { ErrorBoundary, For, Suspense } from "solid-js";
+import { ErrorBoundary, For } from "solid-js";
 import { ErrorView } from "@/components/ErrorView";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { apiFetch } from "@/lib/api";
 import { NotFoundError } from "@/lib/errors";
 import { servicesReportsSchema } from "@/lib/schemas";
@@ -37,22 +36,20 @@ export default function ServicesReportsPage() {
     <ErrorBoundary
       fallback={(error, reset) => <ErrorView error={error} reset={reset} />}
     >
-      <Suspense fallback={<Spinner />}>
-        <div class="space-y-4">
-          <Button as="a" href="/" variant="outline">
-            <ArrowLeftIcon />
-            Back
-          </Button>
-          <h1 class="text-2xl font-semibold">
-            {servicesReportsData()?.projectName}
-          </h1>
-          <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <For each={servicesReportsData()?.services}>
-              {(service) => <ServiceCard service={service} />}
-            </For>
-          </ul>
-        </div>
-      </Suspense>
+      <div class="space-y-4">
+        <Button as="a" href="/" variant="outline">
+          <ArrowLeftIcon />
+          Back
+        </Button>
+        <h1 class="text-2xl font-semibold">
+          {servicesReportsData()?.projectName}
+        </h1>
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <For each={servicesReportsData()?.services}>
+            {(service) => <ServiceCard service={service} />}
+          </For>
+        </ul>
+      </div>
     </ErrorBoundary>
   );
 }

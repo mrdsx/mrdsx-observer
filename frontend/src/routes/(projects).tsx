@@ -1,8 +1,7 @@
 import { createAsync, query } from "@solidjs/router";
-import { ErrorBoundary, For, Suspense } from "solid-js";
+import { ErrorBoundary, For } from "solid-js";
 import { ErrorView } from "@/components/ErrorView";
 import { ProjectCard } from "@/components/ProjectCard";
-import { Spinner } from "@/components/ui/spinner";
 import { apiFetch } from "@/lib/api";
 import { projectsReportsSchema } from "@/lib/schemas";
 
@@ -27,13 +26,11 @@ export default function ProjectsReportsPage() {
     <ErrorBoundary
       fallback={(error, reset) => <ErrorView error={error} reset={reset} />}
     >
-      <Suspense fallback={<Spinner />}>
-        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <For each={projectsReportsData()?.projects}>
-            {(project) => <ProjectCard project={project} />}
-          </For>
-        </ul>
-      </Suspense>
+      <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <For each={projectsReportsData()?.projects}>
+          {(project) => <ProjectCard project={project} />}
+        </For>
+      </ul>
     </ErrorBoundary>
   );
 }
