@@ -6,7 +6,7 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "preview": "vinxi preview",
-    "format": "biome check --write --unsafe ."
+    "fmt": "biome check --write --unsafe ."
   },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
