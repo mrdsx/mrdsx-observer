@@ -5,6 +5,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { apiFetch } from "@/lib/api";
 import { cached } from "@/lib/cache";
 import { projectsReportsSchema } from "@/lib/schemas";
+import { sortByName } from "@/lib/utils";
 
 const getProjectsReports = async () => {
   "use server";
@@ -33,7 +34,7 @@ export default function ProjectsReportsPage() {
       fallback={(error, reset) => <ErrorView error={error} reset={reset} />}
     >
       <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <For each={projectsReportsData()?.projects}>
+        <For each={sortByName(projectsReportsData()?.projects)}>
           {(project) => <ProjectCard project={project} />}
         </For>
       </ul>

@@ -55,3 +55,15 @@ export function mapReports(
 
   return result.toReversed();
 }
+
+export function sortByName<T extends { name: string }[]>(
+  array: T | undefined,
+): T | undefined {
+  if (array === undefined) {
+    return undefined;
+  }
+
+  return array.sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+  );
+}

@@ -8,6 +8,7 @@ import { apiFetch } from "@/lib/api";
 import { cached } from "@/lib/cache";
 import { NotFoundError } from "@/lib/errors";
 import { servicesReportsSchema } from "@/lib/schemas";
+import { sortByName } from "@/lib/utils";
 
 const getServicesReports = async (projectId: string) => {
   "use server";
@@ -54,7 +55,7 @@ export default function ServicesReportsPage() {
           {servicesReportsData()?.projectName}
         </h1>
         <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <For each={servicesReportsData()?.services}>
+          <For each={sortByName(servicesReportsData()?.services)}>
             {(service) => <ServiceCard service={service} />}
           </For>
         </ul>
