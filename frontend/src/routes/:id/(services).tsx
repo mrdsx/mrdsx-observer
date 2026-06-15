@@ -1,14 +1,15 @@
-import { createAsync, query, useParams } from "@solidjs/router";
+import { createAsync, useParams } from "@solidjs/router";
 import { ArrowLeftIcon } from "lucide-solid";
 import { ErrorBoundary, For } from "solid-js";
 import { ErrorView } from "@/components/ErrorView";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { cached } from "@/lib/cache";
 import { NotFoundError } from "@/lib/errors";
 import { servicesReportsSchema } from "@/lib/schemas";
 
-const getServicesReportsQuery = query(async (projectId: string) => {
+const getServicesReports = async (projectId: string) => {
   "use server";
 
   const response = await apiFetch(`/api/projects/${projectId}`);
@@ -24,12 +25,20 @@ const getServicesReportsQuery = query(async (projectId: string) => {
   }
 
   return servicesData;
-}, "servicesReports");
+};
 
 export default function ServicesReportsPage() {
   const params = useParams();
   const servicesReportsData = createAsync(() =>
-    getServicesReportsQuery(params.id as string),
+    cached({
+      fetchFn: () => {
+        if (params.id === undefined) {
+          return undefined;
+        }
+        return getServicesReports(params.id);
+      },
+      fetchKey: `projectsReports/${params.id}`,
+    }),
   );
 
   return (

@@ -1,11 +1,12 @@
-import { createAsync, query } from "@solidjs/router";
+import { createAsync } from "@solidjs/router";
 import { ErrorBoundary, For } from "solid-js";
 import { ErrorView } from "@/components/ErrorView";
 import { ProjectCard } from "@/components/ProjectCard";
 import { apiFetch } from "@/lib/api";
+import { cached } from "@/lib/cache";
 import { projectsReportsSchema } from "@/lib/schemas";
 
-const getProjectsReportsQuery = query(async () => {
+const getProjectsReports = async () => {
   "use server";
 
   const response = await apiFetch("/api/projects");
@@ -17,10 +18,15 @@ const getProjectsReportsQuery = query(async () => {
   }
 
   return projectsData;
-}, "projectsReports");
+};
 
 export default function ProjectsReportsPage() {
-  const projectsReportsData = createAsync(() => getProjectsReportsQuery());
+  const projectsReportsData = createAsync(() =>
+    cached({
+      fetchFn: getProjectsReports,
+      fetchKey: "projectsReports",
+    }),
+  );
 
   return (
     <ErrorBoundary
