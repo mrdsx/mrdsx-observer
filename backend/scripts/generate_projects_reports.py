@@ -8,6 +8,7 @@ from src.api.dependencies import get_projects_reports_repository
 from src.api.dependencies.session import get_session
 from src.core.constants import REPORTS_RETENTION_WINDOW_DAYS
 from src.core.types import ServiceStatus
+from src.models import initialize_db
 from src.models.projects_reports import DB_DailyProjectReport
 from src.schemas.projects_reports import ProjectServiceReport
 from src.utils.datetime import isodate, midnight
@@ -25,6 +26,7 @@ def get_random_status() -> ServiceStatus:
 
 
 async def generate_projects_reports() -> None:
+    await initialize_db()
     projects_reports_repository = get_projects_reports_repository()
 
     projects = [
