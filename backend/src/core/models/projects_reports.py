@@ -13,14 +13,14 @@ class ProjectStatusDTO:
 
 
 @dataclass
+class DailyProjectReportDTO:
+    worst_status: ServiceStatus
+    uptime: float
+
+
+@dataclass
 class ProjectReportDTO:
     name: str
     daily_reports: dict[str, DailyProjectReportDTO]
     current_status: ServiceStatus | None = None
     uptime: float | None = None
-
-
-@dataclass
-class DailyProjectReportDTO:
-    worst_status: ServiceStatus
-    uptime: float
