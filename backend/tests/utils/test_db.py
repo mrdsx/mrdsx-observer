@@ -27,9 +27,9 @@ async def test_deserialize_rows(session: AsyncSession):
     )
 
     result = await session.execute(select(DB_DailyProjectReport))
-    serialized = deserialize_rows(result)
+    raw_reports = deserialize_rows(result)
 
-    assert serialized == [
+    assert raw_reports == [
         {
             "project_id": "project1",
             "date_str": "2027-01-01",
