@@ -1,4 +1,11 @@
 services:
+  backend:
+    build: backend
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "8000:8000"
+
   postgres:
     image: postgres:18.4-alpine
     environment:
