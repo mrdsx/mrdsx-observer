@@ -1,6 +1,6 @@
 .pytest_cache/
+.ropeproject/
 .venv/
-.vscode/
 .zed/
 
 cron_state*

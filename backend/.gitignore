@@ -1,7 +1,7 @@
-__pycache__
-.ruff_cache
-.venv
+__pycache__/
+.ruff_cache/
+.venv/
+.ropeproject/
 cron_state*
 
 .env
-test.lock
