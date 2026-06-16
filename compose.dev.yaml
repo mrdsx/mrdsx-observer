@@ -1,12 +1,12 @@
 services:
-  backend:
+  dev_backend:
     build: backend
     environment:
-      DB_HOST: postgres
+      DB_HOST: dev_postgres
     ports:
       - "8000:8000"
 
-  postgres:
+  dev_postgres:
     image: postgres:18.4-alpine
     environment:
       POSTGRES_USER: default
