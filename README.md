@@ -6,6 +6,8 @@ A dashboard for monitoring my projects status.
 
 ## Migration history
 
+### Frontend migration history
+
 1. Next.js
 2. Vike + React
 3. Vike + Solid
@@ -41,11 +43,11 @@ Also, copy `.env.postgres.example` to `.env.postgres` in project root.
 
 Environment variables from `./.env.postgres` must be identical to variables in `./backend/.env` like so:
 
-| `.env.postgres`     | `.env`        |
-| ------------------- | ------------- |
-| `POSTGRES_USER`     | `DB_USER`     |
-| `POSTGRES_PASSWORD` | `DB_PASSWORD` |
-| `POSTGRES_DB`       | `DB_NAME`     |
+| `.env.postgres`     | `.env` (backend) |
+| ------------------- | ---------------- |
+| `POSTGRES_USER`     | `DB_USER`        |
+| `POSTGRES_PASSWORD` | `DB_PASSWORD`    |
+| `POSTGRES_DB`       | `DB_NAME`        |
 
 ```sh
 cd scripts
