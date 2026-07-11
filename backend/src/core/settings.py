@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     db_host: str = "localhost"
     db_port: int = 5432
     db_name: str = "database"
-
     test_db_port: int = 5440
 
     @property
@@ -25,6 +24,20 @@ class Settings(BaseSettings):
             f"{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{db_port}"
             f"/{self.db_name}"
+        )
+
+    ip_service: str = "https://2ip.ru"
+    github_api_token: str = "token"
+    github_webhook_id: int = 12345
+    github_webhook_repo: str = "mrdsx-observer"
+    github_webhook_repo_owner: str = "mrdsx"
+    github_webhook_port: int = 8010
+
+    @property
+    def update_webhook_url(self) -> str:
+        return (
+            f"https://api.github.com/repos/{self.github_webhook_repo_owner}/"
+            f"{self.github_webhook_repo}/hooks/{self.github_webhook_id}/config"
         )
 
     @property

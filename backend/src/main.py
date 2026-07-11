@@ -11,13 +11,13 @@ from src.api.dependencies import (
 )
 from src.api.dependencies.session import get_session
 from src.core.settings import get_settings
+from src.lifespan import lifespan
 from src.services.projects_reports import (
     DailyProjectReportsUpdater,
     ProjectsStateSnapshotter,
 )
+from src.services.webhooks import GitHubWebhookService
 from src.utils.projects_reports import projects_reports_range
-
-from .lifespan import lifespan
 
 settings = get_settings()
 
@@ -78,4 +78,19 @@ async def delete_old_reports() -> None:
         await reports_repository.delete_old_reports(
             cutoff_date=cutoff_date,
             session=session,
+        )
+
+
+# every minute
+@crons.cron("* * * * *")
+async def update_webhook_url() -> None:
+    if settings.app_env != "prod":
+        print("Skipping webhook URL update")
+        return
+
+    github_webhook_service = GitHubWebhookService()
+
+    async with httpx.AsyncClient() as http_client:
+        await github_webhook_service.update_webhook(
+            http_client=http_client,
         )
