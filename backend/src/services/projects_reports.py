@@ -106,6 +106,36 @@ class ProjectsStateSnapshotter:
             "Site": site_status,
         }
 
+    async def capture_taskish(
+        self, http_client: AsyncClient
+    ) -> dict[str, ServiceStatus]:
+        site_coro = send_request(
+            "https://taskish-16dba449.fastapicloud.dev",
+            http_client=http_client,
+        )
+        static_assets_coro = send_request(
+            "https://taskish-16dba449.fastapicloud.dev/static/flags/vn.svg",
+            http_client=http_client,
+        )
+        api_coro = send_request(
+            "https://taskish-16dba449.fastapicloud.dev/api/tasks",
+            http_client=http_client,
+        )
+
+        site_response, static_assets_response, api_response = await asyncio.gather(
+            site_coro, static_assets_coro, api_coro
+        )
+
+        site_status = get_service_status(site_response)
+        static_assets_status = get_service_status(static_assets_response)
+        api_status = get_service_status(api_response)
+
+        return {
+            "Site": site_status,
+            "Static Assets": static_assets_status,
+            "API": api_status,
+        }
+
 
 class ProjectsReportsService:
     async def get_projects_reports(
@@ -354,11 +384,15 @@ class DailyProjectReportsUpdater:
             task3 = task_group.create_task(
                 snapshotter.capture_swift_tracker(http_client=http_client)
             )
+            task4 = task_group.create_task(
+                snapshotter.capture_taskish(http_client=http_client)
+            )
 
         return [
             ("olympiad-preparation", task1.result()),
             ("classic-word-game", task2.result()),
             ("swift-tracker", task3.result()),
+            ("taskish", task4.result()),
         ]
 
     def _derive_services_reports(

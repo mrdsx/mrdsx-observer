@@ -29,10 +29,11 @@ async def generate_projects_reports() -> None:
     await initialize_db()
     projects_reports_repository = get_projects_reports_repository()
 
-    projects = [
+    projects: list[tuple[str, list[str]]] = [
         ("classic-word-game", ["API", "Site"]),
         ("olympiad-preparation", ["API", "Site", "Static Assets"]),
         ("swift-tracker", ["Site"]),
+        ("taskish", ["API", "Site", "Static Assets"]),
     ]
 
     async for session in get_session():
