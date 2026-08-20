@@ -34,23 +34,15 @@ class ProjectsStateSnapshotter:
         self,
         http_client: AsyncClient,
     ) -> dict[str, ServiceStatus]:
-        site_coro = send_request(
+        site_response = await send_request(
             "https://classic-word-game.vercel.app",
             http_client=http_client,
         )
-        api_coro = send_request(
-            "https://classic-word-game.onrender.com",
-            http_client=http_client,
-        )
-
-        site_response, api_response = await asyncio.gather(site_coro, api_coro)
 
         site_status = get_service_status(site_response)
-        api_status = get_service_status(api_response)
 
         return {
             "Site": site_status,
-            "API": api_status,
         }
 
     async def capture_olympiad_preparation(

@@ -67,10 +67,7 @@ class TestProjectsStateSnapshotter:
         status = await self.snapshotter.capture_classic_word_game(
             http_client=http_client
         )
-        assert status == {
-            "Site": "operational",
-            "API": "operational",
-        }
+        assert status == {"Site": "operational"}
 
     async def test_capture_olympiad_preparation(self, http_client: AsyncClient):
         status = await self.snapshotter.capture_olympiad_preparation(
