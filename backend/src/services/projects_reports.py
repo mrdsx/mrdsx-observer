@@ -62,28 +62,23 @@ class ProjectsStateSnapshotter:
             http_client=http_client,
         )
         static_assets_coro = send_request(
-            "https://res.cloudinary.com/dsf4g0owu/image/upload/w_160,c_limit/markelov-m-t_5_11_jcnm0o",
+            "https://res.cloudinary.com/dsf4g0owu/image/upload/w_iw,q_100/plastinka_c8gpmk",
             http_client=http_client,
         )
-        api_coro1 = send_request(
+        api_coro = send_request(
             "https://olympiad-preparation.vercel.app/api/math-problems?schoolGrade=2",
-            http_client=http_client,
-        )
-        api_coro2 = send_request(
-            "https://olympiad-preparation.onrender.com",
             http_client=http_client,
         )
 
         (
             site_response,
             static_assets_response,
-            api_response1,
-            api_response2,
-        ) = await asyncio.gather(site_coro, static_assets_coro, api_coro1, api_coro2)
+            api_response,
+        ) = await asyncio.gather(site_coro, static_assets_coro, api_coro)
 
         site_status = get_service_status(site_response)
         static_assets_status = get_service_status(static_assets_response)
-        api_status = get_service_status(api_response1, api_response2)
+        api_status = get_service_status(api_response)
 
         return {
             "Site": site_status,
