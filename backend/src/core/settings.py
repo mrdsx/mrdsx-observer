@@ -26,7 +26,7 @@ class Settings(BaseSettings):
             f"/{self.db_name}"
         )
 
-    ip_service: str = "https://2ip.ru"
+    ip_service: str
     github_api_token: str = "token"
     github_webhook_id: int = 12345
     github_webhook_repo: str = "mrdsx-observer"

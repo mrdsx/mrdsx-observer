@@ -4,13 +4,12 @@ from httpx import AsyncClient
 from src.core.settings import Settings
 
 settings = Settings()
-IP_SERVICE_URL = "https://2ip.ru"
 
 
 class GitHubWebhookService:
     async def update_webhook(self, http_client: AsyncClient) -> None:
         ip_headers = {"User-Agent": "curl/8.x.x"}
-        ip_response = await http_client.get(IP_SERVICE_URL, headers=ip_headers)
+        ip_response = await http_client.get(settings.ip_service, headers=ip_headers)
         ip = ip_response.text.replace("\n", "")
         print(f"Updating webhook URL to {ip}:{settings.github_webhook_port}")
 

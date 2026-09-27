@@ -4,9 +4,7 @@
 
 A dashboard for monitoring my projects status.
 
-## Migration history
-
-### Frontend migration history
+## Frontend migration history
 
 1. Next.js
 2. Vike + React
@@ -37,7 +35,7 @@ Copy `.env.prod` to `.env` and fill in blank variables if needed for each direct
 - ./backend
 - ./webhooks/github
 
-Also, copy `.env.postgres.example` to `.env.postgres` in project root.
+Also, copy `.env.postgres.example` to `.env.postgres` in project root. To check that `IP_SERVICE` env variable in backend is valid make a curl request in terminal.
 
 **Important note!**
 
