@@ -50,7 +50,7 @@ class ProjectsStateSnapshotter:
         http_client: AsyncClient,
     ) -> dict[str, ServiceStatus]:
         site_coro = send_request(
-            "https://olympiad-preparation.vercel.app",
+            "https://olympiad-preparation.layero.app",
             http_client=http_client,
         )
         static_assets_coro = send_request(
@@ -58,7 +58,7 @@ class ProjectsStateSnapshotter:
             http_client=http_client,
         )
         api_coro = send_request(
-            "https://olympiad-preparation.vercel.app/api/math-problems?schoolGrade=2",
+            "https://olympiad-preparation.layero.app/api/math-problems?schoolGrade=2",
             http_client=http_client,
         )
 
